@@ -30,6 +30,17 @@ Group keys are defined on the billable metric but **activated on the product**. 
 
 Both fields take an array of property names that must be a subset of the billable metric's `group_keys`. Do not set `presentation_group_key` for dimensions you want to keep internal — omitting it keeps the dimension in the background aggregation only.
 
+**Invoice rendering — what the customer sees:**
+
+| Configuration | Invoice line items |
+|---|---|
+| No group keys | `Tokens — 2,300,000 units — $46.00` |
+| `pricing_group_key` only | `Tokens — 2,300,000 units — $46.00` (one line, rated internally per tier) |
+| `presentation_group_key` only | `Tokens (gpt-4o) — 300,000 units — $9.00` + `Tokens (gpt-4o-mini) — 2,000,000 units — $10.00` (one line per value, same rate) |
+| Both keys | `Tokens (gpt-4o) — 300,000 units — $9.00` + `Tokens (gpt-4o-mini) — 2,000,000 units — $10.00` (one line per value, different rates) |
+
+`presentation_group_key` controls visibility on the invoice. `pricing_group_key` controls which rate is applied. They are independent — you can price by dimension without showing it, or show it without pricing by it. The most common mistake is setting `presentation_group_key` when the user only wanted internal differentiation (keeps model hidden from customer).
+
 ## Per-unit scaling (quantity_conversion)
 
 When pricing is expressed per-N units (e.g., $0.02 per 1,000 tokens), use `quantity_conversion` on the product to avoid fractional cent prices.
