@@ -1,25 +1,30 @@
 ---
 name: metronome-setup-catalog
 description: >-
-  Full end-to-end Metronome setup — billable metrics, products, rate card, customer,
-  and contract. Use when asked to set up Metronome from scratch, onboard a first
-  customer, create a billable metric, create a product, create a rate card, or
-  configure pricing. Covers the complete flow from zero to a live contract.
+  End-to-end Metronome setup from pricing intent to a verified live contract —
+  billable metrics, products, rate card, customer, and contract in order.
+  Use when asked to set up Metronome from scratch, bill a first customer, build
+  a pricing model, create a billable metric or product, configure a rate card,
+  or complete any compound billing setup task end-to-end.
 argument-hint: <pricing_description>
 ---
 
-End-to-end setup from pricing intent to a live contract. The catalog (Steps 1–4) is shared infrastructure created once; customers and contracts (Steps 5–6) repeat per customer. Base URL: `https://api.metronome.com/v1` (prod) or `https://staging.api.metronome.com/v1` (sandbox). Authenticate with `Authorization: Bearer $METRONOME_API_TOKEN`.
+End-to-end setup from pricing intent to a verified live contract. The catalog (Steps 1–4) is shared infrastructure created once; customers and contracts (Steps 5–6) repeat per customer. Base URL: `https://api.metronome.com/v1` (prod) or `https://staging.api.metronome.com/v1` (sandbox). Authenticate with `Authorization: Bearer $METRONOME_API_TOKEN`.
+
+**Scope:** First-time catalog setup only. Does not cover Stripe Connect, Revenue Recognition, tax orchestration, or billing provider-specific features. For topics not covered here, say so explicitly — do not infer from general knowledge.
 
 ## Routing
 
-| Task                                | Reference / step             |
-| ----------------------------------- | ---------------------------- |
-| Define what to measure              | <references/billable-metrics.md> — then Step 1 |
-| Define invoice line items           | <references/products.md> — then Step 2 |
-| Set default pricing                 | <references/rate-cards.md> — then Steps 3–4 |
-| Onboard a customer                  | Step 5 below |
-| Create a contract                   | Step 6 below |
-| Advanced contract options (commits, credits, overrides) | `metronome-create-contract` skill |
+| Task                                            | Reference / step                              |
+| ----------------------------------------------- | --------------------------------------------- |
+| Define what to measure                          | <references/billable-metrics.md> — then Step 1 |
+| Define invoice line items                       | <references/products.md> — then Step 2        |
+| Set default pricing                             | <references/rate-cards.md> — then Steps 3–4   |
+| Match pricing intent to Metronome architecture  | <references/pricing-patterns.md>              |
+| Bill in credits, tokens, or named units         | <references/custom-pricing-units.md>          |
+| Onboard a customer                              | Step 5 below                                  |
+| Create a contract                               | Step 6 below                                  |
+| Advanced contract options (commits, credits, overrides) | `metronome-create-contract` skill      |
 
 Read the relevant reference file before making any API calls.
 
@@ -37,6 +42,7 @@ Step 4 → Add rates               POST /v1/contract-pricing/rate-cards/addRates
 Step 5 → Customer                POST /v1/customers
 Step 6 → Contract                POST /v1/contracts/create
            ↑ needs customer_id from Step 5 + rate_card_id from Step 3
+Step 7 → Verify                  GET /v1/customers/{id}/invoices (required)
 ```
 
 ---
@@ -100,7 +106,7 @@ Content-Type: application/json
 
 ## Step 4 — Add rates
 
-Read <references/rate-cards.md> for rate types and tiered examples.
+Read <references/rate-cards.md> for rate types, subscription rates, and tiered examples.
 
 ```http
 POST /v1/contract-pricing/rate-cards/addRates
@@ -168,9 +174,9 @@ Omit `ending_before` for an evergreen (month-to-month) contract.
 
 ---
 
-## Verification — confirm setup worked
+## Step 7 — Verification (required)
 
-After completing all 6 steps, ingest a test event and check the draft invoice:
+Setup is not complete until the draft invoice is confirmed. Do not declare success without showing a line item.
 
 **Ingest a test event** (bare JSON array — do not wrap in an object):
 ```http
@@ -193,7 +199,7 @@ GET /v1/customers/<customer_id>/invoices?type=USAGE&status=DRAFT
 Authorization: Bearer $METRONOME_API_TOKEN
 ```
 
-A line item with your product name and a non-zero quantity confirms the full chain is working.
+A line item with your product name and a non-zero quantity confirms the full chain is working. If no line item appears, check: event `event_type` matches the billable metric filter, `timestamp` falls within the contract period, and `entitled: true` was set on the rate.
 
 ---
 
@@ -204,6 +210,7 @@ A line item with your product name and a non-zero quantity confirms the full cha
 - *All monetary amounts are in cents.* $1 → `100`, $0.01 → `1`.
 - *`entitled: true` is required on each rate.* Omitting it silently disables the product.
 - *Ingest body must be a bare JSON array.* `[{...}]` not `{"usage": [...]}`.
+- *Confirm the environment before any write.* If staging is unreachable, ask the user which environment to use — do not silently switch to production.
 
 ## Key documentation
 

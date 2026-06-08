@@ -13,7 +13,7 @@ Base URL: `https://api.metronome.com/v1` (prod) or `https://staging.api.metronom
 
 **Prerequisites the user must supply:**
 - Customer ID (from `metronome-create-customer` or via `GET /v1/customers` — match by `name` field)
-- Product IDs for any commits or credits (find these in existing contracts or ask the Metronome admin)
+- Product IDs for commits or credits — these must be **FIXED-type products**. Create them in `metronome-setup-catalog` Step 2 before this step. Commits, credits, and recurring_credits all require a FIXED product.
 
 ---
 
@@ -31,7 +31,7 @@ Extract or ask for:
 | Included allotments | e.g. "2B events/year" — must be converted to dollars: `count × rate/1K` |
 | Platform fee | May be $0 — use a subscription if non-zero |
 | Per-unit rate overrides | Note if variable year-over-year |
-| Product IDs | Required for each commit and credit — ask user if unknown |
+| Product IDs | Must be **FIXED-type products** from `metronome-setup-catalog` Step 2. Run that skill first if you don't have these IDs. |
 
 ---
 
@@ -125,6 +125,27 @@ Content-Type: application/json
 ```
 
 Return the contract `id` on success.
+
+---
+
+## Step 5 — Verify contract is active
+
+```http
+POST /v2/contracts/list
+Authorization: Bearer $METRONOME_API_TOKEN
+Content-Type: application/json
+
+{ "customer_id": "<customer_id>" }
+```
+
+Confirm: `starting_at` ≤ today AND (`ending_before` is null OR `ending_before` > today).
+
+Then ingest one test event and confirm a line item appears on the draft invoice:
+
+```http
+GET /v1/customers/<customer_id>/invoices?type=USAGE&status=DRAFT
+Authorization: Bearer $METRONOME_API_TOKEN
+```
 
 ---
 
