@@ -158,3 +158,4 @@ Authorization: Bearer $METRONOME_API_TOKEN
 - **Converting included events to dollars:** `event_count × rate_per_1K / 1000`. E.g. 2B × $0.03/1K = $60,000.
 - **Multi-year variable rates:** create a separate override entry per year, each with its own date range.
 - **Product IDs are not discoverable via this API flow.** Ask the user or look at an existing customer's contract via `POST /v2/contracts/list`.
+- **Overrides only work on products already on the rate card.** The `product_id` in `overrides[]` must reference a product that has a rate on the contract's `rate_card_id`. Passing a product not on the rate card returns `"No such product in rate card"` — add the product's rate to the rate card first via `addRates`.
