@@ -145,9 +145,37 @@ Each API call → 10 Credits deducted from balance
 
 ---
 
+## Customer-specific discount (contract override)
+
+To give one customer a discounted CPU rate without changing the rate card for everyone, use a contract-level override:
+
+```json
+"overrides": [{
+  "starting_at": "<contract start ISO8601>",
+  "type": "MULTIPLIER",
+  "product_id": "<usage product id>",
+  "multiplier": 0.8
+}]
+```
+
+A multiplier of `0.8` gives a 20% discount. The override applies only to this customer's contract — all other customers on the same rate card are unaffected.
+
+For a fixed custom rate instead of a percentage discount, use `"type": "OVERWRITE"`:
+
+```json
+"overrides": [{
+  "starting_at": "<contract start ISO8601>",
+  "type": "OVERWRITE",
+  "product_id": "<usage product id>",
+  "overwrite_rate": { "rate_type": "FLAT", "price": <cents> }
+}]
+```
+
+---
+
 ## Traps to avoid
 
 - Do not confuse CPUs with monetary credits — CPUs are named units; monetary credits are dollar-denominated balances.
 - Do not set `fiat_per_custom_credit` in dollars — it is in cents.
-- If CPU creation returns 404, the feature requires enablement — contact Metronome support.
+- If CPU creation returns 404, the feature requires enablement — contact Metronome support. While waiting, build the same structure using USD (cents) as the credit type: set `credit_type_id` to the USD credit type ID on rates and commits. Switch to the CPU `credit_type_id` once the feature is enabled — no other changes needed.
 - Do not mix CPU and fiat units in the same `access_schedule` — keep commit denomination consistent.

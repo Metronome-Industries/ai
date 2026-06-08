@@ -201,6 +201,18 @@ Authorization: Bearer $METRONOME_API_TOKEN
 
 A line item with your product name and a non-zero quantity confirms the full chain is working. If no line item appears, check: event `event_type` matches the billable metric filter, `timestamp` falls within the contract period, and `entitled: true` was set on the rate.
 
+> **Timing note:** If the contract `starting_at` is in the future (> 24 hours from now), events with timestamps in that period will be rejected. In this case, verify the rate card structure directly instead:
+>
+> ```http
+> POST /v1/contract-pricing/rate-cards/getRates
+> Authorization: Bearer $METRONOME_API_TOKEN
+> Content-Type: application/json
+>
+> { "rate_card_id": "<id>", "at": "<contract start ISO8601>" }
+> ```
+>
+> Confirm each product appears with a rate and `entitled: true`. Full invoice verification can be done once the contract period begins.
+
 ---
 
 ## Critical rules
