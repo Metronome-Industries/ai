@@ -97,3 +97,4 @@ Set aliases via `POST /v1/customers/{customer_id}/setIngestAliases`. Events sent
 - Do not send events with future timestamps. Events ahead of the current billing period may cause unexpected billing behavior.
 - Do not rely on ingestion order for correctness. Always set explicit `timestamp` values.
 - Do not over-aggregate before sending to Metronome. Metronome is optimized for granular events — pre-aggregating loses the ability to break down usage by dimensions.
+- Do not wrap the ingest body in an object. The request body must be a bare JSON array: `[{...}, {...}]`. Sending `{ "usage": [...] }` or `{ "events": [...] }` returns a 400 with no clear error message — this is the most common Metronome ingest mistake.
