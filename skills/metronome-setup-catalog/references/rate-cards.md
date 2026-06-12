@@ -16,9 +16,7 @@ One rate card → many customers. When you change a rate on the rate card, that 
 | TIERED            | Volume-based breakpoints (graduated pricing)      | GA            |
 | PERCENTAGE        | Percentage of another product's charges           | GA            |
 | TIERED_PERCENTAGE | Tiered percentage of another product's charges    | Feature-gated |
-| SUBSCRIPTION      | Fixed recurring amount                            | Deprecated    |
-
-Use FLAT for simple per-unit pricing. Use TIERED for volume discounts. Avoid SUBSCRIPTION — it is deprecated; use a SUBSCRIPTION-type product with a FLAT rate instead.
+| SUBSCRIPTION      | Fixed recurring amount                            | Deprecated — use FLAT with billing_frequency |
 
 ## Step 1 — Create the rate card
 
@@ -27,9 +25,7 @@ POST /v1/contract-pricing/rate-cards/create
 Authorization: Bearer $METRONOME_API_TOKEN
 Content-Type: application/json
 
-{
-  "name": "<rate card name>"
-}
+{ "name": "<rate card name>" }
 ```
 
 Only `name` is required. **Save the returned `id`** — you need it for adding rates and for every contract you create.
@@ -61,43 +57,51 @@ Required fields per rate: `product_id`, `rate_type`, `starting_at`, `entitled`.
 
 **`entitled: true` is required** to make the product active on contracts. Omitting it means the product is defined but will never appear on invoices.
 
-**`starting_at`** sets when the rate takes effect. Use your contract start date or earlier.
-
 **`price` is in cents.** $0.01/unit → `1`. $10/unit → `1000`. $100/unit → `10000`.
 
-## Example — full setup
+## Subscription rate (platform fee)
 
-Create a rate card for an API platform with per-call and per-token rates:
+For a flat monthly fee, use a SUBSCRIPTION-type product with a FLAT rate. **SUBSCRIPTION products require `billing_frequency`** — omitting it returns an error.
 
-**Create rate card:**
-```json
-{ "name": "Standard API pricing" }
-```
-
-**Add rates:**
 ```json
 {
-  "rate_card_id": "<rate_card_uuid>",
+  "product_id": "<subscription product uuid>",
+  "rate_type": "FLAT",
+  "price": 2000,
+  "billing_frequency": "MONTHLY",
+  "starting_at": "<ISO8601>",
+  "entitled": true
+}
+```
+
+The rate card handles both the subscription fee and usage charges — they appear as separate line items on the invoice.
+
+## Dimensional rates (pricing_group_values)
+
+When a product has a `pricing_group_key`, set separate rates per dimension value:
+
+```json
+{
   "rates": [
     {
-      "product_id": "<api_calls_product_uuid>",
+      "product_id": "<tokens product uuid>",
       "rate_type": "FLAT",
-      "price": 1,
-      "starting_at": "2026-01-01T00:00:00Z",
+      "price": 2,
+      "pricing_group_values": { "model_name": "gpt-4" },
+      "starting_at": "<ISO8601>",
       "entitled": true
     },
     {
-      "product_id": "<tokens_product_uuid>",
+      "product_id": "<tokens product uuid>",
       "rate_type": "FLAT",
-      "price": 2,
-      "starting_at": "2026-01-01T00:00:00Z",
+      "price": 1,
+      "pricing_group_values": { "model_name": "gpt-3.5" },
+      "starting_at": "<ISO8601>",
       "entitled": true
     }
   ]
 }
 ```
-
-This sets $0.01/API call and $0.02/1000 tokens (2 cents per token).
 
 ## Tiered rate example
 
@@ -111,12 +115,54 @@ For volume-based pricing (e.g., first 10K calls at $0.01, then $0.005):
     { "size": 10000, "price": 1 },
     { "size": null, "price": 0 }
   ],
-  "starting_at": "2026-01-01T00:00:00Z",
+  "starting_at": "<ISO8601>",
   "entitled": true
 }
 ```
 
 `size: null` on the last tier means "all remaining units." `price` is in cents per unit.
+
+## Monthly recurring credits (recurring_credits)
+
+For free monthly credits (e.g., $50 of free usage per month), use `recurring_credits` on the contract — not manual `access_schedule` segments. This goes on the contract (Step 6), but plan the FIXED product needed here.
+
+```json
+"recurring_credits": [{
+  "name": "Monthly free credits",
+  "product_id": "<FIXED product id>",
+  "access_amount": {
+    "unit_price": 5000000,
+    "quantity": 1,
+    "credit_type_id": "<usd_credit_type_id>"
+  },
+  "priority": 1,
+  "commit_duration": { "value": 1, "unit": "PERIODS" },
+  "starting_at": "<contract start ISO8601>"
+}]
+```
+
+`commit_duration: PERIODS` auto-provisions a new credit grant each billing period. One declaration — not 12 manual segments. `product_id` must reference a **FIXED-type product**.
+
+## Threshold alerts
+
+After setup, configure spend and balance alerts:
+
+```http
+POST /v1/alerts/create
+Authorization: Bearer $METRONOME_API_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Low balance warning",
+  "alert_type": "low_remaining_contract_credit_and_commit_balance_reached",
+  "threshold": 1000000,
+  "customer_id": "<uuid>",
+  "credit_type_id": "<usd_credit_type_id>"
+}
+```
+
+`credit_type_id` is **required** for balance alert types. `threshold` is in cents.
+Use for: low-balance warnings, auto-recharge triggers, spend cap notifications.
 
 ## Traps to avoid
 
@@ -124,4 +170,6 @@ For volume-based pricing (e.g., first 10K calls at $0.01, then $0.005):
 - Do not omit `entitled: true` — the product will be silently inactive.
 - Do not set prices in dollars — all amounts are in cents.
 - Do not edit the rate card to give one customer a custom rate — use a contract-level override.
-- Do not set `starting_at` in the future if you want rates to apply to contracts that start before that date — the rate only applies to usage on or after `starting_at`.
+- Do not set `starting_at` in the future if you want rates to apply to contracts that start before that date.
+- Do not use FLAT rate alone for SUBSCRIPTION products — `billing_frequency: "MONTHLY"` is required.
+- Do not omit `credit_type_id` when creating balance alerts — required for balance-type alert_types.
