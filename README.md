@@ -19,10 +19,7 @@ Skills live in [`skills/`](skills/) and follow a standard format:
 | [metronome-setup-catalog](skills/metronome-setup-catalog/) | Set up the shared pricing catalog — billable metrics, products, and rate cards |
 | [metronome-create-customer](skills/metronome-create-customer/) | Create a new customer record with name, ingest alias, Salesforce ID, and Slack channel |
 | [metronome-create-contract](skills/metronome-create-contract/) | Create a contract from signed order form terms — commits, credits, and rate overrides |
-| [metronome-commit-health](skills/metronome-commit-health/) | Analyze prepaid commit burn rate, overrun risk, and breakage risk for a customer |
-| [metronome-anomaly-detection](skills/metronome-anomaly-detection/) | Scan a customer list for billing anomalies — MoM spend variance, stuck DRAFTs, commit burn spikes |
-| [metronome-portfolio-briefing](skills/metronome-portfolio-briefing/) | Monthly portfolio report combining commit health, renewal dates, and anomaly checks |
-| [metronome-renewal-prep](skills/metronome-renewal-prep/) | Renewal brief with contract terms, trailing consumption, burn rate, and pricing scenarios |
+| [metronome-csm-reviews](skills/metronome-csm-reviews/) | Customer health reviews — anomaly detection, commit health, portfolio briefing, and renewal prep |
 
 ## Documentation
 
