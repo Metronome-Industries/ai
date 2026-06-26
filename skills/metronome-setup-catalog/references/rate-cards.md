@@ -18,6 +18,17 @@ One rate card → many customers. When you change a rate on the rate card, that 
 | TIERED_PERCENTAGE | Tiered percentage of another product's charges    | Feature-gated |
 | SUBSCRIPTION      | Fixed recurring amount                            | Deprecated — use FLAT with billing_frequency |
 
+## Which products belong on a rate card?
+
+| Product type | On rate card? | How to charge it instead |
+|---|---|---|
+| USAGE | Yes — via `addRates` | — |
+| SUBSCRIPTION | Yes — via `addRates` with `billing_frequency` | — |
+| FIXED | **No** — rate card rejects it | Use `commits`, `credits`, `recurring_credits`, or `scheduled_charges` on the contract |
+| COMPOSITE | Yes — via `addRates` with percentage config | — |
+
+If you try to add a FIXED product to a rate card, the API returns `"Fixed products cannot be added to rate cards"`. This is not an error in your setup — FIXED products are invoiced via contract-level constructs (commits, credits, scheduled charges), not rate card entries.
+
 ## Step 1 — Create the rate card
 
 ```http
@@ -166,6 +177,8 @@ Use for: low-balance warnings, auto-recharge triggers, spend cap notifications.
 
 ## Traps to avoid
 
+- Do not pass `rate_card_entries` in the rate card creation call — the parameter is silently ignored and rates will not be attached. Always create the rate card first (name only), then add rates via `POST /v1/contract-pricing/rate-cards/addRates` as a separate call.
+- Do not attempt to add FIXED products to a rate card via `addRates` — the API returns `"Fixed products cannot be added to rate cards"`. FIXED charges use commits, credits, or scheduled_charges on the contract.
 - Do not use `addRate` (singular) for multiple rates — use `addRates` (plural) for batch efficiency.
 - Do not omit `entitled: true` — the product will be silently inactive.
 - Do not set prices in dollars — all amounts are in cents.

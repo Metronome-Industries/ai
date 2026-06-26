@@ -9,6 +9,16 @@ description: >-
 argument-hint: <pricing_description>
 ---
 
+**MANDATORY: Do not make Metronome API calls from training knowledge.** The Metronome API has silent failures — requests that return 200 OK but do nothing. You MUST use the exact schemas in this file and its reference docs. Before each step: read the linked reference, copy the payload template, and fill in values. If you skip this and guess the schema, you will hit errors that waste 10+ calls to diagnose.
+
+Known silent failures that catch agents who skip the references:
+* Passing rates during rate card creation → silently ignored (rates MUST be added via separate `addRates` call)
+* Omitting `entitled: true` on a rate → rate saves, product never appears on invoices
+* Omitting `property_filters` for `aggregation_key` → confusing error
+* Sending string numbers in events (`"100"` vs `100`) → silent zero aggregation
+
+---
+
 End-to-end setup from pricing intent to a verified live contract. The catalog (Steps 1–4) is shared infrastructure created once; customers and contracts (Steps 5–6) repeat per customer. Base URL: `https://api.metronome.com/v1` (prod) or `https://staging.api.metronome.com/v1` (sandbox). Authenticate with `Authorization: Bearer $METRONOME_API_TOKEN`.
 
 **Scope:** First-time catalog setup only. Does not cover Stripe Connect, Revenue Recognition, tax orchestration, or billing provider-specific features. For topics not covered here, say so explicitly — do not infer from general knowledge.
@@ -99,6 +109,8 @@ Content-Type: application/json
 
 { "name": "<rate card name>" }
 ```
+
+Only `name` is required. **Do not pass `rate_card_entries` or any rates in this call** — they are silently ignored. Rates are added separately in Step 4.
 
 **Save: `id` → rate_card_id** — needed for every contract you create.
 
