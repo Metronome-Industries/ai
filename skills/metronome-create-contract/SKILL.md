@@ -9,7 +9,7 @@ argument-hint: <customer_id_or_name>
 Creates a contract for an existing Metronome customer from signed order form terms.
 Two-step: preview then confirm. Calls the API directly for both the read check and the write.
 
-Base URL: `https://api.metronome.com/v1` (prod) or `https://staging.api.metronome.com/v1` (sandbox).
+Base URL: `https://api.metronome.com/v1`.
 
 **Prerequisites the user must supply:**
 - Customer ID (from `metronome-create-customer` or via `GET /v1/customers` — match by `name` field)
