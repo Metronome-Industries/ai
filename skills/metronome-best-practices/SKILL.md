@@ -12,6 +12,10 @@ description: >-
   invoices with Stripe Billing.
 ---
 
+**MANDATORY: Read the relevant reference file before making any Metronome API call.** Do not rely on training knowledge for Metronome API schemas. The API has undocumented constraints, silent failures, and v1/v2 endpoint splits that training data does not reliably capture. Each section below links to a reference doc — read it before writing code or calling endpoints.
+
+---
+
 Metronome API base: Production `https://api.metronome.com/v1` | Sandbox `https://staging.api.metronome.com/v1`. Authenticate with a Bearer token in the `Authorization` header. Always use Contracts (not legacy Plans) for new integrations.
 
 ## Integration routing
@@ -25,6 +29,7 @@ Metronome API base: Production `https://api.metronome.com/v1` | Sandbox `https:/
 | Invoice lifecycle and finalization         | Invoices API                     | <references/invoicing.md>              |
 | Prepaid or postpaid commitments            | Commits + Credits                | <references/credits-and-commits.md>    |
 | Syncing invoices to Stripe                 | Stripe billing provider config   | <references/stripe-integration.md>     |
+| Querying usage data                        | `POST /v1/usage`                 | <references/events.md>                 |
 | Spend alerts and balance thresholds        | Notifications API                | <references/credits-and-commits.md>    |
 
 Read the relevant reference file before answering any integration question or writing code.

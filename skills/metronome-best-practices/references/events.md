@@ -98,3 +98,27 @@ Set aliases via `POST /v1/customers/{customer_id}/setIngestAliases`. Events sent
 - Do not rely on ingestion order for correctness. Always set explicit `timestamp` values.
 - Do not over-aggregate before sending to Metronome. Metronome is optimized for granular events — pre-aggregating loses the ability to break down usage by dimensions.
 - Do not wrap the ingest body in an object. The request body must be a bare JSON array: `[{...}, {...}]`. Sending `{ "usage": [...] }` or `{ "events": [...] }` returns a 400 with no clear error message — this is the most common Metronome ingest mistake.
+
+## Querying usage
+
+After ingesting events, verify they are landing correctly by querying usage:
+
+```http
+POST /v1/usage
+Authorization: Bearer $METRONOME_API_TOKEN
+Content-Type: application/json
+
+{
+  "customer_id": "<uuid>",
+  "billable_metric_id": "<uuid>",
+  "window_size": "DAY",
+  "starting_on": "<ISO8601>",
+  "ending_before": "<ISO8601>"
+}
+```
+
+**`window_size` valid values:** `HOUR`, `DAY`, `NONE` (aggregate for entire range). There is no `MONTH` or `WEEK` option — use `NONE` for period-level totals or `DAY` and sum client-side.
+
+Returns an array of `{ customer_id, billable_metric_id, billable_metric_name, start_timestamp, end_timestamp, value }` objects. `value` is `null` for periods with no matching events.
+
+Use this to verify events are landing correctly after ingestion and to debug invoice amounts. Events typically appear within seconds in sandbox, but allow up to 60 seconds in production during high-throughput ingestion.

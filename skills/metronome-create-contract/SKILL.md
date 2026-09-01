@@ -6,6 +6,18 @@ argument-hint: <customer_id_or_name>
 
 # metronome-create-contract
 
+**MANDATORY: Do not construct the contract payload from training knowledge.** The contract schema has non-obvious field names and type constraints that will cause failures if guessed:
+* `invoice_schedule.schedule_items` uses `timestamp` — NOT `starting_at` or `ending_before`
+* `access_schedule.schedule_items` uses `ending_before` — NOT `ending_at`
+* Commit `product_id` MUST reference a FIXED-type product — not the USAGE product it covers
+* `ending_before` is required on the contract itself (exclusive — last day + 1)
+* Use `POST /v2/contracts/list` to check existing contracts (v1 list is disabled)
+* Use `POST /v2/contracts/edit` to modify contracts (v1 amend is deprecated)
+
+Copy the exact payload template in Step 4 below. Do not improvise field names.
+
+---
+
 Creates a contract for an existing Metronome customer from signed order form terms.
 Two-step: preview then confirm. Calls the API directly for both the read check and the write.
 
