@@ -17,6 +17,7 @@ Skills live in [`skills/`](skills/) and follow a standard format:
 |-------|-------------|
 | [metronome-best-practices](skills/metronome-best-practices/) | Event ingestion, contracts, rate cards, invoicing, credits/commits, and Stripe integration |
 | [metronome-setup-catalog](skills/metronome-setup-catalog/) | Set up the shared pricing catalog — billable metrics, products, and rate cards |
+| [metronome-group-keys](skills/metronome-group-keys/) | Design group_keys across pricing, invoice presentation, spend breakdowns, seat-based credits, and usage alerts |
 | [metronome-create-customer](skills/metronome-create-customer/) | Create a new customer record with name, ingest alias, Salesforce ID, and Slack channel |
 | [metronome-create-contract](skills/metronome-create-contract/) | Create a contract from signed order form terms — commits, credits, and rate overrides |
 | [metronome-csm-reviews](skills/metronome-csm-reviews/) | Customer health reviews — anomaly detection, commit health, portfolio briefing, and renewal prep |

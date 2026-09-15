@@ -25,6 +25,8 @@ End-to-end setup from pricing intent to a verified live contract. The catalog (S
 | Onboard a customer                              | Step 5 below                                  |
 | Create a contract                               | Step 6 below                                  |
 | Advanced contract options (commits, credits, overrides) | `metronome-create-contract` skill      |
+| More than one group key, or deciding pricing_group_key vs. presentation_group_key | `metronome-group-keys` skill |
+| Existing metric with slow invoices or costly spend breakdowns | `metronome-group-keys` skill |
 
 Read the relevant reference file before making any API calls.
 
@@ -50,6 +52,11 @@ Step 7 → Verify                  GET /v1/customers/{id}/invoices (required)
 ## Step 1 — Billable Metric(s)
 
 Read <references/billable-metrics.md> to choose aggregation type and plan group keys.
+**First, list every dimension on the event and what it's for** — pricing, invoice
+breakdown, spend breakdowns, seat credits, or alerts. If more than one dimension has a
+distinct role (not just more than one entry in `group_keys`), use the
+`metronome-group-keys` skill before calling the API below — a single clean pricing
+dimension with other dimensions serving other features still counts.
 
 ```http
 POST /v1/billable-metrics/create

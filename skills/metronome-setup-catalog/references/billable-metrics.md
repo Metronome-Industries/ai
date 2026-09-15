@@ -28,7 +28,17 @@ Group keys on a billable metric control what you can aggregate and price by.
 
 To keep a dimension internal (hidden from customers), add it as a `group_key` but do NOT add it as `presentation_group_key` on the product.
 
-**Cardinality warning:** Avoid high-cardinality properties as group keys (e.g., `request_id`, unbounded UUIDs). Contact Metronome support if any group key may exceed 1,000 distinct values.
+**Cardinality warning:** Metronome doesn't hard-cap the number of pricing/presentation
+group keys, but using multiple group keys with many possible values per customer can
+increase API latency — contact Metronome support if cardinality is expected to reach
+~1,000 unique values. This applies whether the key is standalone or compound. What
+standalone-vs-compound *does* change is invoice scan cost specifically: a
+*standalone* group key (a single dimension on its own, e.g. `[request_id]`) has no
+combination effect on invoice compute, while a *compound* key's invoice-scan cost is
+the product of every dimension's cardinality combined — but that distinction doesn't
+exempt a high-cardinality standalone key from the ~1,000 support-contact guidance
+above. For multi-dimension setups, standalone-vs-compound tradeoffs, or an existing
+metric with slow invoices, see the `metronome-group-keys` skill.
 
 ---
 
@@ -121,7 +131,7 @@ Required fields: `name`, `aggregation_type`.
 }
 ```
 
-## Traps to avoid
+## Mandatory gotchas
 
 - Do not use LATEST for seat overage billing — use MAX. LATEST misses spikes that resolve before period end.
 - Do not use SUM without `aggregation_key` — the API accepts the call but aggregation silently produces zero.
