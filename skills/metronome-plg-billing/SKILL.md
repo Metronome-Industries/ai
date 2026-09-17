@@ -18,13 +18,13 @@ This skill targets PLG founders who are both pricing decision-maker and billing 
 
 | Founder says (pattern) | Mode | Load reference |
 | --- | --- | --- |
-| "bill my first customer", "set up billing", "recreate [company] pricing", shares pricing URL, "how do I charge for X" | **Start billing** | <references/patterns.md> |
-| "add a tier", "raise prices", "new product", "change rates", "update pricing", "add a fee" | **Change pricing** | <references/blast-radius.md> |
-| "what's going on with customer X", "why is this invoice wrong", "where did credits go", "no usage showing" | **Customer story** | <references/diagnostics.md> |
+| "bill my first customer", "set up billing", "recreate [company] pricing", shares pricing URL, "how do I charge for X" | **Start billing** | [references/patterns.md](https://docs.metronome.com/skills/metronome-plg-billing/references/patterns.md) |
+| "add a tier", "raise prices", "new product", "change rates", "update pricing", "add a fee" | **Change pricing** | [references/blast-radius.md](https://docs.metronome.com/skills/metronome-plg-billing/references/blast-radius.md) |
+| "what's going on with customer X", "why is this invoice wrong", "where did credits go", "no usage showing" | **Customer story** | [references/diagnostics.md](https://docs.metronome.com/skills/metronome-plg-billing/references/diagnostics.md) |
 
 If the founder's intent spans modes (e.g., "set up billing and also figure out why my test customer shows $0"), address modes sequentially. Complete mode 1 verification before starting mode 2.
 
-For implementation-level API details after the founder confirms their intent, load <references/worked-examples.md>.
+For implementation-level API details after the founder confirms their intent, load [references/worked-examples.md](https://docs.metronome.com/skills/metronome-plg-billing/references/worked-examples.md).
 
 ## Corrections
 
@@ -88,7 +88,7 @@ Gate: do not proceed until you can state the pricing model back to the founder i
 
 ### Phase 2 — Match to pattern
 
-Load <references/patterns.md>. Match the founder's description to one of the 7 canonical patterns:
+Load [references/patterns.md](https://docs.metronome.com/skills/metronome-plg-billing/references/patterns.md). Match the founder's description to one of the 7 canonical patterns:
 1. Pure usage (per-unit)
 2. Tiered usage (volume breakpoints)
 3. Subscription + overage
@@ -152,7 +152,7 @@ Two sub-phases. Shared infrastructure first, then customer-specific.
 1. Customer creation (with billing provider config if using Stripe)
 2. Contract creation (referencing rate card, with any overrides, commits, or credits)
 
-Load <references/worked-examples.md> for full API payload examples if the founder needs code-level detail.
+Load [references/worked-examples.md](https://docs.metronome.com/skills/metronome-plg-billing/references/worked-examples.md) for full API payload examples if the founder needs code-level detail.
 
 ### Phase 6 — Verify
 
@@ -161,7 +161,7 @@ Load <references/worked-examples.md> for full API payload examples if the founde
 3. Compare draft invoice line items and total against the mock invoice from Phase 3
 4. Gate: amounts match (within rounding tolerance from cents conversion)
 
-If amounts do not match, load <references/diagnostics.md> and investigate before declaring success.
+If amounts do not match, load [references/diagnostics.md](https://docs.metronome.com/skills/metronome-plg-billing/references/diagnostics.md) and investigate before declaring success.
 
 ## Mode 2: Change pricing
 
@@ -177,7 +177,7 @@ Determine which type:
 
 ### Step 2 — Enumerate blast radius
 
-Load <references/blast-radius.md>.
+Load [references/blast-radius.md](https://docs.metronome.com/skills/metronome-plg-billing/references/blast-radius.md).
 
 For changes that touch the rate card:
 1. Identify the rate card being modified
@@ -225,7 +225,7 @@ Ask:
 
 ### Step 2 — Match anomaly signature
 
-Load <references/diagnostics.md>. Match the concern to one of the 4 anomaly signatures:
+Load [references/diagnostics.md](https://docs.metronome.com/skills/metronome-plg-billing/references/diagnostics.md). Match the concern to one of the 4 anomaly signatures:
 - Zero-usage contract
 - Unexpected invoice amount
 - Balance discrepancy

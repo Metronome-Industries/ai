@@ -18,14 +18,14 @@ Metronome API base: Production `https://api.metronome.com/v1` | Sandbox `https:/
 
 | Building...                                | Recommended API                  | Details                                |
 | ------------------------------------------ | -------------------------------- | -------------------------------------- |
-| Ingesting usage events                     | `POST /v1/ingest`  (batch)      | <references/events.md>                 |
-| Defining what to measure                   | Billable Metrics API             | <references/events.md>                 |
-| Enterprise pricing agreements              | Contracts + Rate Cards           | <references/contracts.md>              |
-| Mid-term contract changes                  | Contract Edits                   | <references/contracts.md>              |
-| Invoice lifecycle and finalization         | Invoices API                     | <references/invoicing.md>              |
-| Prepaid or postpaid commitments            | Commits + Credits                | <references/credits-and-commits.md>    |
-| Syncing invoices to Stripe                 | Stripe billing provider config   | <references/stripe-integration.md>     |
-| Spend alerts and balance thresholds        | Notifications API                | <references/credits-and-commits.md>    |
+| Ingesting usage events                     | `POST /v1/ingest`  (batch)      | [references/events.md](https://docs.metronome.com/skills/metronome-best-practices/references/events.md)                 |
+| Defining what to measure                   | Billable Metrics API             | [references/events.md](https://docs.metronome.com/skills/metronome-best-practices/references/events.md)                 |
+| Enterprise pricing agreements              | Contracts + Rate Cards           | [references/contracts.md](https://docs.metronome.com/skills/metronome-best-practices/references/contracts.md)              |
+| Mid-term contract changes                  | Contract Edits                   | [references/contracts.md](https://docs.metronome.com/skills/metronome-best-practices/references/contracts.md)              |
+| Invoice lifecycle and finalization         | Invoices API                     | [references/invoicing.md](https://docs.metronome.com/skills/metronome-best-practices/references/invoicing.md)              |
+| Prepaid or postpaid commitments            | Commits + Credits                | [references/credits-and-commits.md](https://docs.metronome.com/skills/metronome-best-practices/references/credits-and-commits.md)    |
+| Syncing invoices to Stripe                 | Stripe billing provider config   | [references/stripe-integration.md](https://docs.metronome.com/skills/metronome-best-practices/references/stripe-integration.md)     |
+| Spend alerts and balance thresholds        | Notifications API                | [references/credits-and-commits.md](https://docs.metronome.com/skills/metronome-best-practices/references/credits-and-commits.md)    |
 
 Read the relevant reference file before answering any integration question or writing code.
 

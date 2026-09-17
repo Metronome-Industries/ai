@@ -11,7 +11,7 @@
 
 Complete all items before executing the production cutover:
 
-- [ ] Parallel run completed with acceptable parity (recommend <1% variance)
+- [ ] Parallel run completed with acceptable parity (recommend &lt;1% variance)
 - [ ] All active subscriptions scheduled for end-of-period cancellation
 - [ ] All customers scheduled to become billable at period start
 - [ ] Event pipeline redirected exclusively to Metronome

@@ -68,7 +68,7 @@ exhaustion_date = today + months_remaining
 ```
 Label as **forecast** — never present as a fact.
 
-**Risk classification:** Use shared thresholds from SKILL.md (≥80% overrun, <20% at >80% term breakage).
+**Risk classification:** Use shared thresholds from SKILL.md (≥80% overrun, &lt;20% at >80% term breakage).
 
 **Reconciliation:** State explicitly whether the commit is expected to run out before or after the contract ends.
 

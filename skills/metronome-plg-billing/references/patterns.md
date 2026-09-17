@@ -182,7 +182,7 @@ Credits applied (from commit)                         -$5,100.00
 TOTAL DUE                                                  $0.00
 ```
 
-**True-up invoice (if postpaid, usage < commit):**
+**True-up invoice (if postpaid, usage &lt; commit):**
 ```
 Commitment shortfall                                   $20,000.00
 ───────────────────────────────────────────────────────────────────
@@ -201,7 +201,7 @@ TOTAL DUE                                              $20,000.00
 
 ### Decision forks
 
-1. **Prepaid or postpaid?** Prepaid: customer pays $120K upfront, draws down against usage. Postpaid: customer uses freely, pays shortfall at year end if usage < $120K.
+1. **Prepaid or postpaid?** Prepaid: customer pays $120K upfront, draws down against usage. Postpaid: customer uses freely, pays shortfall at year end if usage &lt; $120K.
 2. **Rollover unused balance?** If quarterly tranches, does unused Q1 balance roll to Q2? Configure rollover on the commit.
 3. **Commit-specific rates vs. standard rates?** Some enterprises get discounted rates within the commit and standard rates for overage. Use a commit-specific multiplier override (`is_commit_specific: true` + `override_specifiers.commit_ids`) — a plain date-bounded override discounts overage too. See `metronome-create-contract`'s Commit-specific discounts section.
 4. **Multiple products covered?** If the commit covers all products (global), leave `applicable_product_ids` unset. If only specific products, scope the commit.

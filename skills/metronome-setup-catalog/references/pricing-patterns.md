@@ -116,7 +116,7 @@ When credits are exhausted, usage invoices at the rate card rate automatically.
 
 **Prepaid vs postpaid:**
 - Prepaid: customer pays upfront → invoice_schedule has a timestamp at purchase; usage draws from balance
-- Postpaid: customer pays at end → no invoice_schedule; true-up invoice generated if usage < committed amount
+- Postpaid: customer pays at end → no invoice_schedule; true-up invoice generated if usage &lt; committed amount
 
 **Skeleton (prepaid):**
 ```
