@@ -26,6 +26,7 @@ Extract or ask for:
 | Customer ID | UUID — use `GET /v1/customers` and match by `name` if only a name is known |
 | Contract start date | ISO 8601 |
 | Contract end date | ISO 8601 — `ending_before` is exclusive (last day + 1) |
+| Net payment terms | e.g. "Net 30" → `net_payment_terms_days: 30` on the contract. Optional. |
 | Rate Card ID | UUID — from `metronome-setup-catalog` or an existing rate card |
 | Prepaid commit amount(s) | In dollars per year — note if different per year |
 | Included allotments | e.g. "2B events/year" — must be converted to dollars: `count × rate/1K` |
@@ -86,8 +87,10 @@ Content-Type: application/json
   "starting_at": "<ISO8601>",
   "ending_before": "<ISO8601>",
   "rate_card_id": "<rate_card_uuid>",
+  "net_payment_terms_days": <int>,
   "commits": [
     {
+      "temporary_id": "<local_commit_ref>",
       "product_id": "<product_uuid>",
       "type": "PREPAID",
       "name": "<name>",
@@ -124,7 +127,42 @@ Content-Type: application/json
 }
 ```
 
-Return the contract `id` on success.
+Return the contract `id` on success. Only give a commit a `temporary_id` if an override in the same request needs to reference it (see below) — otherwise omit the field.
+
+---
+
+## Commit-specific discounts
+
+A plain date-bounded override (`starting_at`/`ending_before` only) discounts *every* charge for that product in the window, including overage. If the order form says a discount applies "only to committed spend" or should stop once a commit is exhausted, that's not enough — use a **commit-specific override** instead:
+
+1. Give the relevant commit a `temporary_id` in the same `contracts/create` call.
+2. On the override, set `"is_commit_specific": true` and reference the commit inside `override_specifiers.commit_ids`.
+3. The override is only active while that commit still has balance. Once it's drawn down, usage automatically falls back to the rate card's list rate — no separate "overage reverts to list price" logic needed.
+
+```json
+{
+  "commits": [
+    {
+      "temporary_id": "commit_A",
+      "product_id": "<product_uuid>",
+      "type": "PREPAID",
+      "name": "<name>"
+    }
+  ],
+  "overrides": [
+    {
+      "type": "MULTIPLIER",
+      "multiplier": 0.2,
+      "is_commit_specific": true,
+      "override_specifiers": [{ "commit_ids": ["commit_A"], "product_id": "<product_uuid>" }],
+      "starting_at": "<ISO8601>",
+      "ending_before": "<ISO8601>"
+    }
+  ]
+}
+```
+
+`is_commit_specific` defaults to `false`. Setting `commit_ids` (or `recurring_commit_ids` / `any_commit_or_credit_ids`) in `override_specifiers` without `is_commit_specific: true` is rejected by the API. If the discount is also time-limited on top of being commit-limited (e.g. "80% off, but only in Year 1"), keep `starting_at`/`ending_before` on the override too — the two conditions are independent and both apply.
 
 ---
 
@@ -159,3 +197,4 @@ Authorization: Bearer $METRONOME_API_TOKEN
 - **Multi-year variable rates:** create a separate override entry per year, each with its own date range.
 - **Product IDs are not discoverable via this API flow.** Ask the user or look at an existing customer's contract via `POST /v2/contracts/list`.
 - **Overrides only work on products already on the rate card.** The `product_id` in `overrides[]` must reference a product that has a rate on the contract's `rate_card_id`. Passing a product not on the rate card returns `"No such product in rate card"` — add the product's rate to the rate card first via `addRates`.
+- **"Discount applies only to committed spend" needs `is_commit_specific`, not just dates.** A date-bounded override discounts overage too if the overage happens to fall in the same window. See Commit-specific discounts above.

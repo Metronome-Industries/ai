@@ -56,6 +56,7 @@ A [contract](https://docs.metronome.com/overview/contracts/) binds a customer to
 - **Scheduled charges** — One-time or recurring fixed charges at specific dates
 - **Billing cadence** — Monthly, quarterly, or annual billing cycles
 - **Start and end dates** — Contract validity period
+- **Payment terms** — `net_payment_terms_days` on the contract (e.g. Net 30)
 
 Contracts are implemented using event sourcing — every change is recorded as an immutable event, providing a complete audit trail. You can reconstruct contract state at any historical point in time.
 
@@ -66,6 +67,7 @@ Override rate card prices at the contract level for customer-specific pricing wi
 - **Overwrites** replace the rate entirely (e.g., custom flat rate for an enterprise customer)
 - **Multipliers** apply percentage adjustments (e.g., 0.8 multiplier = 20% discount)
 - **Custom tiered overrides** replace tier breakpoints for a specific customer
+- **Commit-specific overrides** apply only while a named commit or credit still has balance, instead of (or in addition to) a fixed date window. Set `is_commit_specific: true` and reference the commit via `override_specifiers.commit_ids` (using the commit's `temporary_id`). Without this, a discount scoped only by `starting_at`/`ending_before` keeps applying to overage usage that falls in the same window — it does not automatically stop when the commit is exhausted. See `metronome-create-contract` for the exact payload shape.
 
 Multiplier priority: explicit priority value > greatest discount > most recently added.
 
