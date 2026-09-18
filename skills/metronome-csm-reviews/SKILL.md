@@ -17,10 +17,10 @@ All API calls are read-only. Use `$METRONOME_API_TOKEN` for auth. Base URL: `htt
 
 | CSM asks... | Mode | Load |
 | --- | --- | --- |
-| "which customers need attention", "MoM variance", "stuck invoices", "month-end review", "anomalies" | Anomaly detection | <references/anomaly-detection.md> |
-| "how is [customer] tracking", "commit burn rate", "overrun risk", "will they run out", "commit health" | Commit health | <references/commit-health.md> |
-| "monthly report", "portfolio briefing", "all-customer summary", "end of month", "who needs attention this month" | Portfolio briefing | <references/portfolio-briefing.md> |
-| "prep for renewal", "renewal brief", "TCV scenarios", "contract expiring", "consumption trajectory" | Renewal prep | <references/renewal-prep.md> |
+| "which customers need attention", "MoM variance", "stuck invoices", "month-end review", "anomalies" | Anomaly detection | [references/anomaly-detection.md](https://docs.metronome.com/skills/metronome-csm-reviews/references/anomaly-detection.md) |
+| "how is [customer] tracking", "commit burn rate", "overrun risk", "will they run out", "commit health" | Commit health | [references/commit-health.md](https://docs.metronome.com/skills/metronome-csm-reviews/references/commit-health.md) |
+| "monthly report", "portfolio briefing", "all-customer summary", "end of month", "who needs attention this month" | Portfolio briefing | [references/portfolio-briefing.md](https://docs.metronome.com/skills/metronome-csm-reviews/references/portfolio-briefing.md) |
+| "prep for renewal", "renewal brief", "TCV scenarios", "contract expiring", "consumption trajectory" | Renewal prep | [references/renewal-prep.md](https://docs.metronome.com/skills/metronome-csm-reviews/references/renewal-prep.md) |
 
 Read the relevant reference file before making any API calls or analysis.
 
@@ -47,9 +47,9 @@ Apply these to FINALIZED data only. Never flag mid-month DRAFT invoices.
 | Signal | Threshold | Flag |
 | --- | --- | --- |
 | Commit % consumed | ≥ 80% | 🔴 Overrun risk |
-| Commit % consumed | < 20% at > 80% of contract term elapsed | 🟡 Breakage risk |
+| Commit % consumed | &lt; 20% at > 80% of contract term elapsed | 🟡 Breakage risk |
 | MoM Δ% | > +20% (FINALIZED invoices only) | 🟠 Spend spike |
-| MoM Δ% | < −20% (FINALIZED invoices only) | 🟡 Spend decline |
+| MoM Δ% | &lt; −20% (FINALIZED invoices only) | 🟡 Spend decline |
 | Days to renewal | ≤ 30 | 🟠 Renewal imminent |
 | Days to renewal | 31–90 | 🟡 Renewal upcoming |
 | Stuck DRAFT invoice | `end_timestamp` in the past, status still DRAFT | 🟠 Billing issue |

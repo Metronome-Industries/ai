@@ -21,14 +21,14 @@ This skill covers migrating from Stripe's Usage-Based Billing (Billing Meters, P
 
 | Task                                         | Reference                             |
 | -------------------------------------------- | ------------------------------------- |
-| Scoping the migration effort                 | <references/scoping.md>               |
-| Mapping Stripe concepts to Metronome         | <references/concept-mapping.md>       |
-| Designing billable metrics and group keys    | <references/product-catalog-design.md>|
-| Choosing an integration pattern              | <references/integration-patterns.md>  |
-| Implementing step by step                    | <references/implementation.md>        |
-| Migrating legacy customers (parallel run)    | <references/legacy-migration.md>      |
-| Testing and parity validation                | <references/testing.md>               |
-| Production cutover and monitoring            | <references/cutover.md>               |
+| Scoping the migration effort                 | [references/scoping.md](https://docs.metronome.com/skills/stripe-to-metronome-migration/references/scoping.md)               |
+| Mapping Stripe concepts to Metronome         | [references/concept-mapping.md](https://docs.metronome.com/skills/stripe-to-metronome-migration/references/concept-mapping.md)       |
+| Designing billable metrics and group keys    | [references/product-catalog-design.md](https://docs.metronome.com/skills/stripe-to-metronome-migration/references/product-catalog-design.md)|
+| Choosing an integration pattern              | [references/integration-patterns.md](https://docs.metronome.com/skills/stripe-to-metronome-migration/references/integration-patterns.md)  |
+| Implementing step by step                    | [references/implementation.md](https://docs.metronome.com/skills/stripe-to-metronome-migration/references/implementation.md)        |
+| Migrating legacy customers (parallel run)    | [references/legacy-migration.md](https://docs.metronome.com/skills/stripe-to-metronome-migration/references/legacy-migration.md)      |
+| Testing and parity validation                | [references/testing.md](https://docs.metronome.com/skills/stripe-to-metronome-migration/references/testing.md)               |
+| Production cutover and monitoring            | [references/cutover.md](https://docs.metronome.com/skills/stripe-to-metronome-migration/references/cutover.md)               |
 
 Read the relevant reference file before answering any migration question or generating migration code.
 

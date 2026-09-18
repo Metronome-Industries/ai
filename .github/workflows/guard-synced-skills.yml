@@ -1,0 +1,43 @@
+# Rejects pull requests that edit the generated skills/ directory.
+name: Guard synced skills
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'skills/**'
+      - '!skills/README.md'
+      - '.skills-sync.json'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  block:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compose the review
+        id: message
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const association = context.payload.pull_request.author_association;
+            const isInternal = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(association);
+
+            const next = isInternal
+              ? 'To make the change stick, edit `docs/skills/<name>/` in the `Metronome-Industries/api` repository and open a pull request against `main` there. Run `npm run lint:skills` before pushing.'
+              : 'Thanks for this. The change has to be applied upstream, so please open an issue describing what should change and a maintainer will port it. See CONTRIBUTING.md.';
+
+            core.setOutput('body', [
+              'This pull request edits files that are generated. `skills/` is synced from `docs/skills/` in the private `Metronome-Industries/api` repository, and the next sync wipes and rewrites these directories, so any change made here is reverted.',
+              '',
+              next,
+            ].join('\n'));
+
+      - name: Request changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          BODY: ${{ steps.message.outputs.body }}
+        run: gh pr review "$PR_URL" --request-changes --body "$BODY"
