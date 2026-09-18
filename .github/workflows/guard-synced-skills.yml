@@ -1,22 +1,4 @@
 # Rejects pull requests that edit the generated skills/ directory.
-#
-# Modelled on stripe/ai's guard-skills.yml, with three deliberate changes:
-#
-#   1. pull_request_target rather than pull_request. A pull_request run from a
-#      fork receives no secrets and only a read-only token, so a guard that needs
-#      write access silently fails for exactly the contributors it is meant to
-#      catch. pull_request_target runs in the base repository's context with a
-#      write-capable token.
-#
-#      This is only safe because the job never checks out or executes PR code.
-#      Do not add a checkout step.
-#
-#   2. secrets.GITHUB_TOKEN rather than a GitHub App. pull_request_target already
-#      grants a token that can review, so this repository needs no secrets at all.
-#
-#   3. author_association rather than matching a username suffix. Stripe can test
-#      for a "-stripe" suffix; Metronome handles follow no such convention, so a
-#      suffix test would misclassify people.
 name: Guard synced skills
 
 on:
