@@ -9,7 +9,7 @@ description: >-
 argument-hint: <pricing_description>
 ---
 
-End-to-end setup from pricing intent to a verified live contract. The catalog (Steps 1–4) is shared infrastructure created once; customers and contracts (Steps 5–6) repeat per customer. Base URL: `https://api.metronome.com/v1` (prod) or `https://staging.api.metronome.com/v1` (sandbox). Authenticate with `Authorization: Bearer $METRONOME_API_TOKEN`.
+End-to-end setup from pricing intent to a verified live contract. The catalog (Steps 1–4) is shared infrastructure created once; customers and contracts (Steps 5–6) repeat per customer. Base URL: `https://api.metronome.com/v1`. Authenticate with `Authorization: Bearer $METRONOME_API_TOKEN`.
 
 **Scope:** First-time catalog setup only. Does not cover Stripe Connect, Revenue Recognition, tax orchestration, or billing provider-specific features. For topics not covered here, say so explicitly — do not infer from general knowledge.
 

@@ -11,7 +11,7 @@ description: >-
 argument-hint: <customer_name_or_list>
 ---
 
-All API calls are read-only. Use `$METRONOME_API_TOKEN` for auth. Base URL: `https://api.metronome.com/v1` (prod) or `https://staging.api.metronome.com/v1` (sandbox).
+All API calls are read-only. Use `$METRONOME_API_TOKEN` for auth. Base URL: `https://api.metronome.com/v1`.
 
 ## Routing
 
