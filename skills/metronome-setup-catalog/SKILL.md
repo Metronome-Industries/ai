@@ -17,11 +17,11 @@ End-to-end setup from pricing intent to a verified live contract. The catalog (S
 
 | Task                                            | Reference / step                              |
 | ----------------------------------------------- | --------------------------------------------- |
-| Define what to measure                          | <references/billable-metrics.md> — then Step 1 |
-| Define invoice line items                       | <references/products.md> — then Step 2        |
-| Set default pricing                             | <references/rate-cards.md> — then Steps 3–4   |
-| Match pricing intent to Metronome architecture  | <references/pricing-patterns.md>              |
-| Bill in credits, tokens, or named units         | <references/custom-pricing-units.md>          |
+| Define what to measure                          | [references/billable-metrics.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/billable-metrics.md) — then Step 1 |
+| Define invoice line items                       | [references/products.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/products.md) — then Step 2        |
+| Set default pricing                             | [references/rate-cards.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/rate-cards.md) — then Steps 3–4   |
+| Match pricing intent to Metronome architecture  | [references/pricing-patterns.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/pricing-patterns.md)              |
+| Bill in credits, tokens, or named units         | [references/custom-pricing-units.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/custom-pricing-units.md)          |
 | Onboard a customer                              | Step 5 below                                  |
 | Create a contract                               | Step 6 below                                  |
 | Advanced contract options (commits, credits, overrides) | `metronome-create-contract` skill      |
@@ -51,7 +51,7 @@ Step 7 → Verify                  GET /v1/customers/{id}/invoices (required)
 
 ## Step 1 — Billable Metric(s)
 
-Read <references/billable-metrics.md> to choose aggregation type and plan group keys.
+Read [references/billable-metrics.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/billable-metrics.md) to choose aggregation type and plan group keys.
 **First, list every dimension on the event and what it's for** — pricing, invoice
 breakdown, spend breakdowns, seat credits, or alerts. If more than one dimension has a
 distinct role (not just more than one entry in `group_keys`), use the
@@ -79,7 +79,7 @@ Content-Type: application/json
 
 ## Step 2 — Product(s)
 
-Read <references/products.md> to choose product type and configure group keys.
+Read [references/products.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/products.md) to choose product type and configure group keys.
 
 ```http
 POST /v1/contract-pricing/products/create
@@ -113,7 +113,7 @@ Content-Type: application/json
 
 ## Step 4 — Add rates
 
-Read <references/rate-cards.md> for rate types, subscription rates, and tiered examples.
+Read [references/rate-cards.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/rate-cards.md) for rate types, subscription rates, and tiered examples.
 
 ```http
 POST /v1/contract-pricing/rate-cards/addRates

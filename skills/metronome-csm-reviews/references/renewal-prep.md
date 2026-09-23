@@ -69,7 +69,7 @@ GET /v1/customers/{id}/invoices?type=USAGE&sort=date-desc&limit=3
 |---|---|
 | Each period > prior by > 10% | Accelerating — upsell signal |
 | Periods within ±10% of each other | Steady |
-| Each period < prior by > 10% | Decelerating — renewal risk |
+| Each period &lt; prior by > 10% | Decelerating — renewal risk |
 
 **Projected annual run rate:**
 ```

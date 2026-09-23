@@ -33,7 +33,7 @@ Prepaid commits can also be **payment-gated** — the commit only activates afte
 The customer agrees to a minimum spend over a period (quarter, year). No upfront payment is required. At the end of the commitment period:
 
 - If actual usage >= committed amount: no additional charge.
-- If actual usage < committed amount: Metronome generates a **true-up invoice** for the difference.
+- If actual usage &lt; committed amount: Metronome generates a **true-up invoice** for the difference.
 
 Postpaid commits can be configured to disable true-up invoices if the shortfall should be waived.
 
