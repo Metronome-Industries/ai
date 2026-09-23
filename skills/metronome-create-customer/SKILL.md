@@ -9,7 +9,7 @@ argument-hint: <company_name>
 Creates a single customer record in Metronome. Two-step: preview then confirm.
 Calls the API directly for both the duplicate check and the write.
 
-Base URL: `https://api.metronome.com/v1` (prod) or `https://staging.api.metronome.com/v1` (sandbox).
+Base URL: `https://api.metronome.com/v1`.
 
 ---
 

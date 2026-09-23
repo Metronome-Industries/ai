@@ -12,7 +12,7 @@ description: >-
   invoices with Stripe Billing.
 ---
 
-Metronome API base: Production `https://api.metronome.com/v1` | Sandbox `https://staging.api.metronome.com/v1`. Authenticate with a Bearer token in the `Authorization` header. Always use Contracts (not legacy Plans) for new integrations.
+Metronome API base: `https://api.metronome.com/v1`. Authenticate with a Bearer token in the `Authorization` header. Always use Contracts (not legacy Plans) for new integrations.
 
 ## Integration routing
 
