@@ -16,7 +16,7 @@ Metronome API base: `https://api.metronome.com/v1`. Authenticate with a Bearer t
 
 ## Integration routing
 
-| Building...                                | Recommended API                  | Details                                |
+| Building                                   | Recommended API                  | Details                                |
 | ------------------------------------------ | -------------------------------- | -------------------------------------- |
 | Ingesting usage events                     | `POST /v1/ingest`  (batch)      | [references/events.md](https://docs.metronome.com/skills/metronome-best-practices/references/events.md)                 |
 | Defining what to measure                   | Billable Metrics API             | [references/events.md](https://docs.metronome.com/skills/metronome-best-practices/references/events.md)                 |
