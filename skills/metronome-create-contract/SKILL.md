@@ -2,6 +2,7 @@
 name: metronome-create-contract
 description: Creates a Metronome contract for an existing customer from signed order form terms — commits, credits, and rate overrides. Use when asked to create a contract, set up a contract, add a commit or credit, configure pricing, or start a new contract.
 argument-hint: <customer_id_or_name>
+public: true
 ---
 
 # metronome-create-contract

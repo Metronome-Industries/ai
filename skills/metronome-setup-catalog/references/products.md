@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Products
 
 Products define what appears as a line item on customer invoices. Each product maps to one type of charge.

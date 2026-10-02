@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Events and billable metrics
 
 ## Table of contents

@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Worked examples
 
 ## Contents

@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Scoping a Stripe UBBv1 to Metronome migration
 
 ## Table of contents

@@ -10,6 +10,7 @@ description: >-
   Metronome integration — including ingesting usage events, creating contracts
   or rate cards, managing credits and commits, configuring invoicing, or syncing
   invoices with Stripe Billing.
+public: true
 ---
 
 Metronome API base: `https://api.metronome.com/v1`. Authenticate with a Bearer token in the `Authorization` header. Always use Contracts (not legacy Plans) for new integrations.

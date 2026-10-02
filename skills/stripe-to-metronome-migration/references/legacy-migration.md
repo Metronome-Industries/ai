@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Legacy customer migration
 
 ## Table of contents

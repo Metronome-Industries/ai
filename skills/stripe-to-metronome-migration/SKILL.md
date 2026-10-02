@@ -13,6 +13,7 @@ description: >-
   scoping the effort, mapping Stripe objects to Metronome equivalents,
   designing billable metrics and group keys, running parallel validation,
   migrating credit grants, or cutting over production customers.
+public: true
 ---
 
 This skill covers migrating from Stripe's Usage-Based Billing (Billing Meters, Prices, Subscriptions, Credit Grants) to Metronome. For general Metronome integration guidance not specific to migration, use the `metronome-best-practices` skill instead.

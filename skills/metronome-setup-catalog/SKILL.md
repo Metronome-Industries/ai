@@ -7,6 +7,7 @@ description: >-
   a pricing model, create a billable metric or product, configure a rate card,
   or complete any compound billing setup task end-to-end.
 argument-hint: <pricing_description>
+public: true
 ---
 
 End-to-end setup from pricing intent to a verified live contract. The catalog (Steps 1–4) is shared infrastructure created once; customers and contracts (Steps 5–6) repeat per customer. Base URL: `https://api.metronome.com/v1`. Authenticate with `Authorization: Bearer $METRONOME_API_TOKEN`.

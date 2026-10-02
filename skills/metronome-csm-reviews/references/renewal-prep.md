@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Renewal prep
 
 Produces a renewal brief for a single customer: current contract terms, trailing consumption, burn rate, and suggested renewal pricing range.

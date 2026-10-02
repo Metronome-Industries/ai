@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Custom Pricing Units (CPUs)
 
 Custom Pricing Units let you denominate pricing in named synthetic currencies — "Credits", "Tokens", "Points" — instead of raw dollars. Customers see and purchase Credits; Metronome handles the fiat conversion internally.

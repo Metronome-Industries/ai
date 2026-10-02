@@ -9,6 +9,7 @@ description: >-
   presentation_group_key, or when an existing setup has slow invoices or unexpectedly
   costly spend breakdowns.
 argument-hint: <event_schema_description>
+public: true
 ---
 
 # metronome-group-keys

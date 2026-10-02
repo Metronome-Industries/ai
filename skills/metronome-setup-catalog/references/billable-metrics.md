@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Billable metrics
 
 Billable metrics define what you measure and bill for. Each metric specifies an aggregation rule applied to usage events over a billing period.

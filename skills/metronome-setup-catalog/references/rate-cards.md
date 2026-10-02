@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Rate cards
 
 A rate card is the shared price list for your product catalog. It defines default rates for each product. Customer contracts reference a rate card by `rate_card_id` and inherit its rates unless overridden at the contract level.

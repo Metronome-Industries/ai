@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Integration patterns
 
 ## Table of contents

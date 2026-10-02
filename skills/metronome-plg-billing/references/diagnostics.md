@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Customer diagnostics
 
 ## Contents

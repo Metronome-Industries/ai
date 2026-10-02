@@ -2,6 +2,7 @@
 name: metronome-create-customer
 description: Creates a new customer record in Metronome with name, ingest alias, Salesforce ID, and Slack channel. Use when asked to create a customer, add a customer, onboard a new account, or set up their account in Metronome.
 argument-hint: <company_name>
+public: true
 ---
 
 # metronome-create-customer

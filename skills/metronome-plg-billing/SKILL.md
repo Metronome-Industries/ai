@@ -10,6 +10,7 @@ description: >-
   investigate a customer account, or translate a pricing page into Metronome
   objects. Targets users who think in business terms (dollars, invoices,
   customers) rather than API objects.
+public: true
 ---
 
 This skill targets PLG founders who are both pricing decision-maker and billing implementer. Communicate in business language (dollars, invoices, customers). End every mode at a moment the founder can verify against their business intent.

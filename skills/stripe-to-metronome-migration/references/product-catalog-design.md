@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Product catalog design
 
 ## Table of contents

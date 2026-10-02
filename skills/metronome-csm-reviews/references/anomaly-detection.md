@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Anomaly detection
 
 Scans a bounded customer list for billing anomalies across 4 signals: MoM spend variance, stuck DRAFT invoices, commit burn spikes, and stale credit balances.

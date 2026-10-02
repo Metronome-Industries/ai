@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Contracts, rate cards, and products
 
 ## Table of contents

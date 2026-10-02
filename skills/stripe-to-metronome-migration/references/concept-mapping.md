@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Concept mapping: Stripe UBBv1 to Metronome
 
 ## Table of contents

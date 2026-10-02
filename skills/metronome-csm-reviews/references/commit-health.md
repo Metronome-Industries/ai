@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Commit health
 
 Analyzes a single customer's prepaid commit — burn rate, overrun risk, breakage risk, and projected exhaustion date.

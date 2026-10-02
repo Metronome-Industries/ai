@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Portfolio briefing
 
 Orchestrates commit health, renewal, and anomaly checks across a bounded customer list and produces a structured monthly briefing.

@@ -1,6 +1,7 @@
 ---
 name: metronome-token-billing
 description: Set up and verify Metronome Token Billing for an AI application through public APIs. Use when an agent needs to model one or more AI plans, including fixed fees, postpaid token usage, included or prepaid credits, top-ups, custom pricing units, usage dimensions, selected models and markup; create or update the managed rate card and packages; provision a customer; integrate usage reporting; or validate the Stripe and Metronome billing flow. Do not use for unrelated Metronome pricing models.
+public: true
 ---
 
 # Set up Metronome Token Billing through APIs

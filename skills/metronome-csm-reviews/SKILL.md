@@ -9,6 +9,7 @@ description: >-
   customers need attention, how a customer is tracking against their commit,
   for a monthly report or portfolio briefing, or to prep for a renewal.
 argument-hint: <customer_name_or_list>
+public: true
 ---
 
 All API calls are read-only. Use `$METRONOME_API_TOKEN` for auth. Base URL: `https://api.metronome.com/v1`.

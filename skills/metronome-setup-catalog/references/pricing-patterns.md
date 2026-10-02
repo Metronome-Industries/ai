@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Pricing patterns
 
 Match your pricing intent to a complete Metronome decomposition before creating any objects. Each pattern below specifies the exact primitives required, the key architectural insight, and a minimal API skeleton.

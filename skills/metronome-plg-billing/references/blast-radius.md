@@ -1,3 +1,8 @@
+---
+public: true
+hidden: true
+---
+
 # Blast radius: pricing change protocol
 
 ## Contents
