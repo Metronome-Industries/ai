@@ -19,6 +19,10 @@ hidden: true
 
 Billable metrics define what you measure and bill for — API calls, storage GB, tokens processed, seats used, data transferred, etc. Create metrics before ingesting events that reference them. Events with an `event_type` that does not match any billable metric are silently ignored.
 
+**Streaming metrics don't backfill.** A streaming billable metric only evaluates events ingested from the point it exists onward. Creating a new metric, or archiving one and creating a replacement, does **not** retroactively re-attribute or re-rate events that were already ingested — there is no backfill, even if the new metric's `event_type_filter` would otherwise match those older events. This is a separate failure mode from the "no matching metric" trap above: that one is about events never matching anything; this one is about events that already matched (or arrived before) a metric that didn't exist yet. (SQL billable metrics, which query a persistent `events` table rather than streaming forward, behave differently when swapped on a product — check current docs before assuming the same rule applies there.)
+
+**Every dimension in `group_keys`, and the `aggregation_key` itself, needs a matching `property_filters` entry** or the create call fails with a named error (`"The specified aggregation key must be one of the property filter names."` / `"Group key '<key>' does not match one of the property filter names."`). See the `metronome-group-keys` skill for the full design flow when more than one dimension is involved.
+
 Metric aggregation types:
 
 | Type      | Behavior                              | Example                          |
@@ -86,6 +90,7 @@ Events are attributed to a billing period based on their `timestamp` value, not 
 - Events can be sent out of order — Metronome uses the explicit timestamp for attribution.
 - Events arriving after the billing period's grace period has expired will not count toward that closed period.
 - Plan grace periods around your data pipeline's maximum latency to avoid losing events.
+- **Events can only be backdated up to 34 days from ingestion time.** An out-of-range timestamp returns a `400` for the whole request, not a silent drop — `/v1/ingest` validates every event in the batch before publishing any of them, so one too-old (or future-dated beyond 24 hours) event fails the entire batch, including otherwise-valid events sent alongside it. Remove the invalid event(s) and retry the valid remainder rather than resending the batch unchanged. There is no self-serve recovery for data actually older than the window; corrections beyond 34 days require contacting Metronome's operations team. This is the same window used for `transaction_id` deduplication, so a retry more than 34 days after the original send is not deduplicated either.
 
 See [invoicing reference](https://docs.metronome.com/overview/invoicing/) for grace period configuration.
 

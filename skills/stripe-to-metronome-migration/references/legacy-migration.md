@@ -39,6 +39,8 @@ The safest approach for migrating existing Stripe UBBv1 customers is a parallel 
 
 Duration: Minimum one full billing cycle (recommended: one month).
 
+**Historical backfill limit**: if you need to send any pre-cutover usage history into Metronome (not just the forward dual-write below), events can only be backdated up to 34 days from ingestion time. A single out-of-range timestamp returns a `400` for its entire request — `/v1/ingest` validates every event in the batch before publishing any of them — so a bulk historical load needs its timestamps checked before sending, not just retried after a partial failure. There's no self-serve recovery for data genuinely older than the window. Plan a parallel run that starts within that window, or backfill incrementally as you approach cutover rather than trying to load a long history in one pass close to the deadline.
+
 1. **Send usage events to both Stripe and Metronome** (dual-write)
 2. **Stripe Subscriptions remain active** — Stripe continues to invoice customers normally
 3. **Metronome generates unbillable invoices** — these exist for parity validation only (not sent to Stripe)

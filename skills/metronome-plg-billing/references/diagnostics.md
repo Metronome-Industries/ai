@@ -24,23 +24,23 @@ The founder says: "My customer shows zero usage" or "Invoice is $0" or "Only the
 
 1. **Event type mismatch** — The `event_type` on ingested events doesn't match the billable metric's `event_type_filter`. Events are silently ignored.
 2. **Wrong customer_id or alias** — Events are being attributed to a different customer (or no customer).
-3. **Events too old** — Timestamps on events are more than 34 days in the past. Silently dropped.
+3. **Events too old** — A timestamp more than 34 days in the past (or more than 24 hours in the future) is rejected with a `400` at ingest time — the whole batch fails, not just that event, so the events were never stored at all. If the founder's pipeline doesn't surface ingest errors, this looks identical to "I sent events and nothing happened."
 4. **Contract not started yet** — Events are arriving but the contract `starting_at` is in the future.
 5. **Customer genuinely inactive** — No events have been sent for this customer.
 
 ### Diagnostic steps
 
 1. **Check the billable metric**: `GET /v1/billable-metrics/{id}` — confirm `event_type_filter.in_values` matches what is being sent.
-2. **Search recent events**: `POST /v1/usage/searchEvents` with the customer's `transaction_id` prefix — verify events exist and are attributed to the right customer.
+2. **Search recent events**: `POST /v1/usage/searchEvents` with the customer's `transaction_id` prefix — verify events exist and are attributed to the right customer. A `400` from an out-of-range timestamp means the events were never ingested, so they won't show up here at all — check the event source's own logs for a failed `/ingest` call instead.
 3. **Check ingest aliases**: `GET /v1/customers/{id}` — verify the `ingest_aliases` include whatever ID the event source is using as `customer_id`.
-4. **Check event timestamps**: Compare event `timestamp` values against current time. If gap > 34 days, events were dropped.
+4. **Check event timestamps**: Compare the timestamps the source is sending against current time. If any event in a batch is more than 34 days old, the whole batch is rejected.
 5. **Check contract dates**: `GET /v2/contracts/{id}` — confirm `starting_at` is before the event timestamps.
 
 ### Resolution
 
 - **Type mismatch**: Fix the event source to send the correct `event_type`, OR update the billable metric name (note: `event_type_filter` is immutable — you must create a new metric if the filter is wrong).
 - **Wrong customer_id**: Fix the event source or add the correct ingest alias.
-- **Old events**: Re-send events with timestamps within the 34-day window. Previously dropped events cannot be recovered.
+- **Old events**: Remove the out-of-range event(s) and resend the valid remainder within the 34-day window; make sure the pipeline logs/alerts on ingest `400`s so this doesn't silently recur. Data genuinely older than 34 days cannot be backdated in after the fact.
 - **Contract timing**: Either backdate the contract start or wait for the contract to become active.
 
 ---

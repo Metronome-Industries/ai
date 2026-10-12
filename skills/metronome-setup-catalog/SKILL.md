@@ -23,7 +23,7 @@ End-to-end setup from pricing intent to a verified live contract. The catalog (S
 | Set default pricing                             | [references/rate-cards.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/rate-cards.md) — then Steps 3–4   |
 | Match pricing intent to Metronome architecture  | [references/pricing-patterns.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/pricing-patterns.md)              |
 | Bill in credits, tokens, or named units         | [references/custom-pricing-units.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/custom-pricing-units.md)          |
-| Onboard a customer                              | Step 5 below                                  |
+| Create a record for the merchant's own customer (not a Stripe/Metronome employee or internal user) | Step 5 below                                  |
 | Create a contract                               | Step 6 below                                  |
 | Advanced contract options (commits, credits, overrides) | `metronome-create-contract` skill      |
 | More than one group key, or deciding pricing_group_key vs. presentation_group_key | `metronome-group-keys` skill |
@@ -141,6 +141,8 @@ All prices in cents: $0.01 → `1`, $1.00 → `100`, $10.00 → `1000`.
 ---
 
 ## Step 5 — Customer
+
+Create a record for the merchant's own end customer — the company being billed, not a Stripe or Metronome employee or internal user.
 
 ```http
 POST /v1/customers

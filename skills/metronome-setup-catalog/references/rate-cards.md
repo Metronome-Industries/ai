@@ -178,3 +178,7 @@ Use for: low-balance warnings, auto-recharge triggers, spend cap notifications.
 - Do not set `starting_at` in the future if you want rates to apply to contracts that start before that date.
 - Do not use FLAT rate alone for SUBSCRIPTION products — `billing_frequency: "MONTHLY"` is required.
 - Do not omit `credit_type_id` when creating balance alerts — required for balance-type alert_types.
+- `addRates` responds with only `{ "data": { "id": "<rate_card_id>" } }` — it does not echo back the created rate objects or their IDs. Don't gate a success check on a returned rate list; re-read via `getRates` or `getRateSchedule` to confirm what was actually written.
+- `getRateSchedule` requires `starting_at` — the API rejects a call without it with `"starting_at is required"`.
+- Response shapes can vary in ways that are easy to assume away: percentage-rate rows have been reported to omit `credit_type_id` in `getRates` responses where flat-rate rows include it, and rate-schedule rows for products with no `pricing_group_key` have been reported to omit `pricing_group_values` entirely rather than returning it empty. Treat both fields as possibly absent and check before reading them, rather than assuming either is always present.
+- List endpoints' paging controls (`limit`, `next_page`) are query-string parameters, not body fields. Passing them in the request body is accepted but silently ignored, which produces the same page repeatedly.

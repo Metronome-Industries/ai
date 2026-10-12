@@ -35,7 +35,7 @@ For implementation-level API details after the founder confirms their intent, lo
 
 Rule: Founder sees dollars. API receives cents. Always annotate: `10000  # $100.00`.
 
-**34-day event backdating limit**: Events with timestamps older than 34 days from ingestion time are silently dropped. No error returned. The founder will see zero usage for that period. There is no way to recover — the events must be re-sent within the window.
+**34-day event backdating limit**: Events with timestamps older than 34 days from ingestion time return a `400` error — and because `/v1/ingest` validates every event in a batch before publishing any of them, one too-old event fails the whole batch, including otherwise-valid events sent alongside it. The fix is to drop the invalid event(s) and retry the valid remainder, not to resend the batch unchanged. There is no way to recover data genuinely older than 34 days — it cannot be backdated in after the fact.
 
 **Event type mismatch**: Events with an `event_type` that does not match any billable metric's `event_type_filter` are silently ignored. No error, no warning, no dead-letter queue. The founder sees zero usage. This is the #1 cause of "I'm sending events but nothing shows up."
 

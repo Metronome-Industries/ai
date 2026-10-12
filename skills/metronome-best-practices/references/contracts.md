@@ -101,6 +101,7 @@ Contracts support time-based scheduling for rate changes and charges:
 
 ## Traps to avoid
 
+- Prefer `POST /v2/contracts/list` over `POST /v1/contracts/list`. Both exist, but some accounts have v1 disabled (403, endpoint-disabled) while v2 works everywhere — if v1 403s, switch to v2 rather than treating it as a bug. `metronome-create-contract` and `metronome-csm-reviews` already use v2 exclusively for this reason. v2 has no `status` field; determine "active" from `starting_at` ≤ today and (`ending_before` is null or in the future). When checking for an existing active contract specifically, pass `covering_date` (the current timestamp) rather than just `customer_id` — results are chronological and capped at 20 per page, so a customer with more history than that can have its active contract past the first page.
 - Do not use Plans for new customers. Always use Contracts.
 - Do not use Amendments to modify contracts. Always use Edits.
 - Do not hardcode pricing directly in contracts. Define pricing in rate cards and use overrides for customer-specific deviations.

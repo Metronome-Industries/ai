@@ -1,13 +1,13 @@
 ---
 name: metronome-create-customer
-description: Creates a new customer record in Metronome with name, ingest alias, Salesforce ID, and Slack channel. Use when asked to create a customer, add a customer, onboard a new account, or set up their account in Metronome.
+description: Creates a new customer record representing one of the merchant's own end customers in Metronome, with name, ingest alias, Salesforce ID, and Slack channel. Use when asked to create a customer, add a customer, onboard a new account, or set up a customer's account in Metronome.
 argument-hint: <company_name>
 public: true
 ---
 
 # metronome-create-customer
 
-Creates a single customer record in Metronome. Two-step: preview then confirm.
+Creates a single customer record in Metronome representing the merchant's own end customer (the company being billed) — not a Stripe or Metronome employee or internal user. Two-step: preview then confirm.
 Calls the API directly for both the duplicate check and the write.
 
 Base URL: `https://api.metronome.com/v1`.
@@ -33,7 +33,7 @@ Ask the user for anything not already provided:
 GET /v1/customers
 Authorization: Bearer $METRONOME_API_TOKEN
 ```
-Returns all customers — match by `name` field from the response.
+Returns all customers — match by `name` field from the response. (List-endpoint verbs aren't uniform across the Metronome API — this one is `GET`, while e.g. `POST /v2/contracts/list` is `POST`. Confirm the verb from the specific endpoint's reference rather than assuming by analogy.)
 
 - Match found → show it and ask the user to confirm this is a different entity.
 - No match → proceed.

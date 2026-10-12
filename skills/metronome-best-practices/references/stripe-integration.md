@@ -10,6 +10,7 @@ hidden: true
 - Integration overview
 - Arrears invoicing flow
 - Tax configuration
+- Payment collection method and default payment method
 - Line item mapping
 - Rounding and discrepancies
 - Webhook and error handling
@@ -53,6 +54,16 @@ Configure your tax provider (Stripe Tax, Avalara, or Anrok) on the Stripe side. 
 - **With Stripe Tax or Anrok v2**: The Stripe invoice can be finalized immediately. Tax is calculated inline.
 - **With Avalara or Anrok v1**: The Stripe invoice stays in draft until tax metadata is received (typically up to 1 hour). A safety cron finalizes stale drafts if the tax provider is slow.
 - **Do not** enable "send tax to NetSuite" while also using NetSuite's Tax commit mode. This causes double taxation.
+
+## Payment collection method and default payment method
+
+Keep three independent things separate — they're easy to conflate when a deal has Net terms, a specific payment rail, and a commit access schedule all at once:
+
+- **Payment timing** (Net 30, due dates) lives on the Metronome contract (`net_payment_terms_days`) or, for `send_invoice`, on Stripe's `days_until_due`.
+- **Payment rail** is the customer's `stripe_collection_method` — `charge_automatically` or `send_invoice` — set via the customer's Stripe billing-provider configuration, independent of the contract.
+- **Commitment/access-schedule timing** (when a prepaid commit's balance becomes available) is modeled independently of both of the above.
+
+`charge_automatically` needs a Stripe default payment method (`invoice_settings.default_payment_method`) on the customer. Without one, the invoice still finalizes normally — finalization isn't blocked — but Stripe can't charge it, and that collection attempt fails, leaving the invoice open and unpaid. Diagnose and monitor this as a payment-collection failure (a failed charge, or an `invoice.payment_failed` webhook), not a finalization problem. Verify or set the default payment method explicitly rather than assuming a payment method collected elsewhere (e.g. during a separate Stripe Checkout flow) is already the invoice default. `send_invoice` instead emails the invoice with payment instructions and requires `days_until_due` to be set.
 
 ## Line item mapping
 

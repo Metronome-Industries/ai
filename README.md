@@ -29,7 +29,7 @@ You can also point an agent at a skill by URL, for example `https://docs.metrono
 |-------|-------------|
 | [metronome-best-practices](skills/metronome-best-practices/) | Guides Metronome usage-based billing integration decisions — event ingestion (single and batch, idempotency, billable metrics), contract design (rate cards, overrides, dimensional pricing, products... |
 | [metronome-create-contract](skills/metronome-create-contract/) | Creates a Metronome contract for an existing customer from signed order form terms — commits, credits, and rate overrides. |
-| [metronome-create-customer](skills/metronome-create-customer/) | Creates a new customer record in Metronome with name, ingest alias, Salesforce ID, and Slack channel. |
+| [metronome-create-customer](skills/metronome-create-customer/) | Creates a new customer record representing one of the merchant's own end customers in Metronome, with name, ingest alias, Salesforce ID, and Slack channel. |
 | [metronome-csm-reviews](skills/metronome-csm-reviews/) | Customer health reviews for CSMs — anomaly detection (MoM spend variance, stuck DRAFT invoices, commit burn spikes), commit health (burn rate, overrun and breakage risk for a single customer), port... |
 | [metronome-group-keys](skills/metronome-group-keys/) | Designs group_keys for a billable metric across pricing, invoice presentation, spend breakdowns, seat-based credits, and usage alerts — and flags cardinality risk (a combined key's cost is the prod... |
 | [metronome-plg-billing](skills/metronome-plg-billing/) | Guides PLG founders through billing setup, pricing changes, and customer diagnostics on Metronome. |

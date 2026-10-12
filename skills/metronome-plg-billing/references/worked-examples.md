@@ -110,46 +110,38 @@ POST /v1/contract-pricing/rate-cards/create
 }
 ```
 
-Add rates:
+Add rates (batched via `addRates`, not the singular `addRate`):
 
 ```json
-POST /v1/contract-pricing/rate-cards/addRate
+POST /v1/contract-pricing/rate-cards/addRates
 {
   "rate_card_id": "<rate_card_id>",
-  "product_id": "<subscription_product_id>",
-  "starting_at": "2026-01-01T00:00:00Z",
-  "entitled": true,
-  "rate_type": "SUBSCRIPTION",
-  "subscription_rate": {
-    "billing_frequency": "MONTHLY",
-    "unit_price": 2000  // $20.00
-  }
-}
-```
-
-```json
-POST /v1/contract-pricing/rate-cards/addRate
-{
-  "rate_card_id": "<rate_card_id>",
-  "product_id": "<inference_product_id>",
-  "starting_at": "2026-01-01T00:00:00Z",
-  "entitled": true,
-  "rate_type": "FLAT",
-  "pricing_group_values": { "model": "gpt-4" },
-  "price": 0.3  // $0.003/token (in cents: 0.3 cents per token)
-}
-```
-
-```json
-POST /v1/contract-pricing/rate-cards/addRate
-{
-  "rate_card_id": "<rate_card_id>",
-  "product_id": "<inference_product_id>",
-  "starting_at": "2026-01-01T00:00:00Z",
-  "entitled": true,
-  "rate_type": "FLAT",
-  "pricing_group_values": { "model": "gpt-3.5" },
-  "price": 0.1  // $0.001/token (in cents: 0.1 cents per token)
+  "rates": [
+    {
+      "product_id": "<subscription_product_id>",
+      "starting_at": "2026-01-01T00:00:00Z",
+      "entitled": true,
+      "rate_type": "FLAT",
+      "billing_frequency": "MONTHLY",
+      "price": 2000  // $20.00
+    },
+    {
+      "product_id": "<inference_product_id>",
+      "starting_at": "2026-01-01T00:00:00Z",
+      "entitled": true,
+      "rate_type": "FLAT",
+      "pricing_group_values": { "model": "gpt-4" },
+      "price": 0.3  // $0.003/token (in cents: 0.3 cents per token)
+    },
+    {
+      "product_id": "<inference_product_id>",
+      "starting_at": "2026-01-01T00:00:00Z",
+      "entitled": true,
+      "rate_type": "FLAT",
+      "pricing_group_values": { "model": "gpt-3.5" },
+      "price": 0.1  // $0.001/token (in cents: 0.1 cents per token)
+    }
+  ]
 }
 ```
 
@@ -158,7 +150,7 @@ POST /v1/contract-pricing/rate-cards/addRate
 4. Create customer:
 
 ```json
-POST /v1/customers/create
+POST /v1/customers
 {
   "name": "Acme Corp",
   "billing_config": {
@@ -205,6 +197,12 @@ POST /v1/contracts/create
 ### Verification
 
 Ingest test events → pull draft invoice → compare against mock invoice. The subscription line + usage lines - credit application should match the mock total.
+
+### Note on rate types for a recurring fee
+
+This example charges the platform fee as a `FLAT` rate with `billing_frequency` set, on a `SUBSCRIPTION`-type product — the supported, non-legacy path, and no proration configuration needed. Don't use `rate_type: "SUBSCRIPTION"` instead: that rate type is feature-flagged legacy, and it has its own required fields the API rejects a request without — a top-level `quantity` (≥ 0) and `is_prorated` (`true`/`false`) — neither of which this `FLAT` + `billing_frequency` approach needs.
+
+If you instead model the fee with the contract's `subscriptions` array (the quantity-managed path used for seat-based pricing — a different feature from either rate type above), its `proration.invoice_behavior` field is conditionally required: with `collection_schedule: "advance"`, `invoice_behavior` must be set (the API rejects a missing value with `"Subscription collection schedule ADVANCE must have a proration invoice behavior set"`); with `collection_schedule: "arrears"`, `invoice_behavior` cannot be `"bill_immediately"` (rejected with `"Subscription collection schedule ARREARS cannot have proration invoice behavior BILL_IMMEDIATELY"`) and defaults to `"bill_on_next_collection_date"` if omitted.
 
 ---
 
@@ -288,16 +286,20 @@ POST /v1/contract-pricing/rate-cards/create
 ```
 
 ```json
-POST /v1/contract-pricing/rate-cards/addRate
+POST /v1/contract-pricing/rate-cards/addRates
 {
   "rate_card_id": "<rate_card_id>",
-  "product_id": "<product_id>",
-  "starting_at": "2026-01-01T00:00:00Z",
-  "entitled": true,
-  "rate_type": "TIERED",
-  "tiers": [
-    { "size": 10000, "price": 1 },     // First 10,000: $0.01/call (1 cent)
-    { "price": 0.5 }                    // After 10,000: $0.005/call (0.5 cents)
+  "rates": [
+    {
+      "product_id": "<product_id>",
+      "starting_at": "2026-01-01T00:00:00Z",
+      "entitled": true,
+      "rate_type": "TIERED",
+      "tiers": [
+        { "size": 10000, "price": 1 },     // First 10,000: $0.01/call (1 cent)
+        { "price": 0.5 }                    // After 10,000: $0.005/call (0.5 cents)
+      ]
+    }
   ]
 }
 ```
@@ -412,29 +414,28 @@ POST /v1/contract-pricing/rate-cards/create
 { "name": "Enterprise Standard", "aliases": [{ "name": "enterprise-std" }] }
 ```
 
-Add rates:
+Add rates (batched via `addRates`, not the singular `addRate`):
 
 ```json
-POST /v1/contract-pricing/rate-cards/addRate
+POST /v1/contract-pricing/rate-cards/addRates
 {
   "rate_card_id": "<rate_card_id>",
-  "product_id": "<compute_product_id>",
-  "starting_at": "2026-01-01T00:00:00Z",
-  "entitled": true,
-  "rate_type": "FLAT",
-  "price": 10  // $0.10/hour (10 cents)
-}
-```
-
-```json
-POST /v1/contract-pricing/rate-cards/addRate
-{
-  "rate_card_id": "<rate_card_id>",
-  "product_id": "<storage_product_id>",
-  "starting_at": "2026-01-01T00:00:00Z",
-  "entitled": true,
-  "rate_type": "FLAT",
-  "price": 5  // $0.05/GB-month (5 cents)
+  "rates": [
+    {
+      "product_id": "<compute_product_id>",
+      "starting_at": "2026-01-01T00:00:00Z",
+      "entitled": true,
+      "rate_type": "FLAT",
+      "price": 10  // $0.10/hour (10 cents)
+    },
+    {
+      "product_id": "<storage_product_id>",
+      "starting_at": "2026-01-01T00:00:00Z",
+      "entitled": true,
+      "rate_type": "FLAT",
+      "price": 5  // $0.05/GB-month (5 cents)
+    }
+  ]
 }
 ```
 

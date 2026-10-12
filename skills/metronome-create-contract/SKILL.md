@@ -44,10 +44,10 @@ POST /v2/contracts/list
 Authorization: Bearer $METRONOME_API_TOKEN
 Content-Type: application/json
 
-{ "customer_id": "<customer_id>" }
+{ "customer_id": "<customer_id>", "covering_date": "<current ISO8601 timestamp>" }
 ```
 
-The v2 contracts API has no `status` field — determine active contracts by checking that `starting_at` ≤ today and (`ending_before` is null OR `ending_before` > today). If an active contract already exists, surface it and ask whether to amend or create a new one. Do not create a second active contract without confirmation.
+**Always pass `covering_date`, not just `customer_id`.** Results come back in chronological order capped at 20 per page, so a customer with more contract history than that can have its active contract sitting on a later page — a `customer_id`-only call can miss it and let a duplicate active contract get created. `covering_date` filters server-side to contracts active on that date instead of relying on pagination; if a non-null `cursor` still comes back, follow it rather than assuming the first page is complete. The v2 contracts API has no `status` field — determine active contracts by checking that `starting_at` ≤ today and (`ending_before` is null OR `ending_before` > today). If an active contract already exists, surface it and ask whether to amend or create a new one. Do not create a second active contract without confirmation.
 
 ---
 
@@ -165,6 +165,11 @@ A plain date-bounded override (`starting_at`/`ending_before` only) discounts *ev
 
 `is_commit_specific` defaults to `false`. Setting `commit_ids` (or `recurring_commit_ids` / `any_commit_or_credit_ids`) in `override_specifiers` without `is_commit_specific: true` is rejected by the API. If the discount is also time-limited on top of being commit-limited (e.g. "80% off, but only in Year 1"), keep `starting_at`/`ending_before` on the override too — the two conditions are independent and both apply.
 
+**Two more fields only apply to commit-specific overrides:**
+
+- **`target`** (on the override itself): `"COMMIT_RATE"` or `"LIST_RATE"`, defaults to `"LIST_RATE"`. It picks whether the override's effect applies to usage that would otherwise bill at this commit's own discounted rate (`COMMIT_RATE`) or at the rate card's standard price (`LIST_RATE`) within that commit's scope — it is **not** a blanket "revert this product to list price" switch. A commit or credit separately has its own `rate_type` field (same enum) that sets what rate usage drawing against *that commit* bills at in the first place; don't conflate the override's `target` with the commit's `rate_type`.
+- **`override_specifiers[].any_commit_or_credit_ids`**: an array of commit/credit/recurring-commit/recurring-credit IDs (including a same-request `temporary_id`), for applying one override across several different commits or credits at once instead of a single one. Like `commit_ids`, it requires `is_commit_specific: true` and must be paired with one of `product_id`, `product_tags`, `pricing_group_values`, or `presentation_group_values` on the same specifier. It is mutually exclusive with `commit_ids`/`recurring_commit_ids` on that specifier — combining them is rejected by the API.
+
 ---
 
 ## Step 5 — Verify contract is active
@@ -174,10 +179,10 @@ POST /v2/contracts/list
 Authorization: Bearer $METRONOME_API_TOKEN
 Content-Type: application/json
 
-{ "customer_id": "<customer_id>" }
+{ "customer_id": "<customer_id>", "covering_date": "<current ISO8601 timestamp>" }
 ```
 
-Confirm: `starting_at` ≤ today AND (`ending_before` is null OR `ending_before` > today).
+Confirm: `starting_at` ≤ today AND (`ending_before` is null OR `ending_before` > today). As in Step 2, pass `covering_date` rather than `customer_id` alone — the new contract could otherwise be sitting past the first 20-result page.
 
 Then ingest one test event and confirm a line item appears on the draft invoice:
 

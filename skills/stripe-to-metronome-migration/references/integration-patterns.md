@@ -59,7 +59,7 @@ When Metronome pushes invoices to Stripe:
 ### Key considerations
 
 - Stripe Tax, Anrok, or Avalara can be applied at Stripe invoice finalization
-- Collection method (`charge_automatically` or `send_invoice`) is configurable per customer
+- Collection method (`charge_automatically` or `send_invoice`) is configurable per customer — `charge_automatically` needs a Stripe default payment method on the customer or the charge attempt fails after finalization (the invoice itself still finalizes; it's collection that fails); see the `metronome-best-practices` skill's Stripe integration reference for the full payment-collection breakdown
 - Manage payment status in the Stripe Dashboard, not in Metronome
 - Set up webhooks for payment statuses if using payment-gated commits
 
