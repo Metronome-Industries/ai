@@ -91,4 +91,4 @@ If you rely on Stripe webhook events (`invoice.finalized`, `invoice.paid`, `invo
 - Metronome fires its own webhook events for Metronome invoices
 - After cutover, Stripe continues to fire webhooks for invoices pushed from Metronome (since they become Stripe invoices)
 
-Reference: [Metronome Webhooks](https://docs.metronome.com/guides/platform-configuration/setup-webhooks)
+Reference: [Metronome Webhooks](https://docs.metronome.com/guides/platform-configuration/webhooks/best-practices)
