@@ -41,7 +41,7 @@ Extract or ask for:
 
 ```http
 POST /v2/contracts/list
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 { "customer_id": "<customer_id>", "covering_date": "<current ISO8601 timestamp>" }
@@ -80,7 +80,7 @@ Reply "confirmed" to create.
 
 ```http
 POST /v1/contracts/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {
@@ -176,7 +176,7 @@ A plain date-bounded override (`starting_at`/`ending_before` only) discounts *ev
 
 ```http
 POST /v2/contracts/list
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 { "customer_id": "<customer_id>", "covering_date": "<current ISO8601 timestamp>" }
@@ -188,7 +188,7 @@ Then ingest one test event and confirm a line item appears on the draft invoice:
 
 ```http
 GET /v1/customers/<customer_id>/invoices?type=USAGE&status=DRAFT
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 ```
 
 ---

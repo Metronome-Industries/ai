@@ -38,7 +38,7 @@ Custom Pricing Units let you denominate pricing in named synthetic currencies â€
 
 ```http
 POST /v1/credit-types/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 { "name": "Credits" }
@@ -54,7 +54,7 @@ Set `credit_type_conversions` on the rate card to define the fiat â†” CPU exchan
 
 ```http
 POST /v1/contract-pricing/rate-cards/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {
@@ -76,7 +76,7 @@ When adding rates to the rate card, specify `credit_type_id` to denominate the r
 
 ```http
 POST /v1/contract-pricing/rate-cards/addRates
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {

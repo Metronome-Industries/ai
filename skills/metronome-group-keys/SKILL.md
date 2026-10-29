@@ -157,7 +157,7 @@ adding it after the fact.
 
 ```http
 POST /v1/billable-metrics/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {
@@ -192,7 +192,7 @@ Then on the product:
 
 ```http
 POST /v1/contract-pricing/products/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {

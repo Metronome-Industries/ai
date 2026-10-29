@@ -10,7 +10,7 @@ argument-hint: <pricing_description>
 public: true
 ---
 
-End-to-end setup from pricing intent to a verified live contract. The catalog (Steps 1–4) is shared infrastructure created once; customers and contracts (Steps 5–6) repeat per customer. Base URL: `https://api.metronome.com/v1`. Authenticate with `Authorization: Bearer $METRONOME_API_TOKEN`.
+End-to-end setup from pricing intent to a verified live contract. The catalog (Steps 1–4) is shared infrastructure created once; customers and contracts (Steps 5–6) repeat per customer. Base URL: `https://api.metronome.com/v1`. Authenticate with `Authorization: Bearer $METRONOME_BEARER_TOKEN`.
 
 **Scope:** First-time catalog setup only. Does not cover Stripe Connect, Revenue Recognition, tax orchestration, or billing provider-specific features. For topics not covered here, say so explicitly — do not infer from general knowledge.
 
@@ -61,7 +61,7 @@ dimension with other dimensions serving other features still counts.
 
 ```http
 POST /v1/billable-metrics/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {
@@ -84,7 +84,7 @@ Read [references/products.md](https://docs.metronome.com/skills/metronome-setup-
 
 ```http
 POST /v1/contract-pricing/products/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {
@@ -102,7 +102,7 @@ Content-Type: application/json
 
 ```http
 POST /v1/contract-pricing/rate-cards/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 { "name": "<rate card name>" }
@@ -118,7 +118,7 @@ Read [references/rate-cards.md](https://docs.metronome.com/skills/metronome-setu
 
 ```http
 POST /v1/contract-pricing/rate-cards/addRates
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {
@@ -146,7 +146,7 @@ Create a record for the merchant's own end customer — the company being billed
 
 ```http
 POST /v1/customers
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {
@@ -165,7 +165,7 @@ Content-Type: application/json
 
 ```http
 POST /v1/contracts/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {
@@ -191,7 +191,7 @@ Setup is not complete until the draft invoice is confirmed. Do not declare succe
 **Ingest a test event** (bare JSON array — do not wrap in an object):
 ```http
 POST /v1/ingest
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 [{
@@ -206,7 +206,7 @@ Content-Type: application/json
 **Check the draft invoice:**
 ```http
 GET /v1/customers/<customer_id>/invoices?type=USAGE&status=DRAFT
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 ```
 
 A line item with your product name and a non-zero quantity confirms the full chain is working. If no line item appears, check: event `event_type` matches the billable metric filter, `timestamp` falls within the contract period, and `entitled: true` was set on the rate.
@@ -215,7 +215,7 @@ A line item with your product name and a non-zero quantity confirms the full cha
 >
 > ```http
 > POST /v1/contract-pricing/rate-cards/getRates
-> Authorization: Bearer $METRONOME_API_TOKEN
+> Authorization: Bearer $METRONOME_BEARER_TOKEN
 > Content-Type: application/json
 >
 > { "rate_card_id": "<id>", "at": "<contract start ISO8601>" }
@@ -232,7 +232,7 @@ A line item with your product name and a non-zero quantity confirms the full cha
 - *All monetary amounts are in cents.* $1 → `100`, $0.01 → `1`.
 - *`entitled: true` is required on each rate.* Omitting it silently disables the product.
 - *Ingest body must be a bare JSON array.* `[{...}]` not `{"usage": [...]}`.
-- *Confirm the environment before any write.* If staging is unreachable, ask the user which environment to use — do not silently switch to production.
+- *Confirm the environment before any write.* Ask the user whether to write to sandbox or production — do not silently switch to production.
 
 ## Key documentation
 

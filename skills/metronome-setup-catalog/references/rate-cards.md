@@ -27,7 +27,7 @@ One rate card → many customers. When you change a rate on the rate card, that 
 
 ```http
 POST /v1/contract-pricing/rate-cards/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 { "name": "<rate card name>" }
@@ -41,7 +41,7 @@ Use the batch endpoint (preferred over `addRate`):
 
 ```http
 POST /v1/contract-pricing/rate-cards/addRates
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {
@@ -154,7 +154,7 @@ After setup, configure spend and balance alerts:
 
 ```http
 POST /v1/alerts/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {

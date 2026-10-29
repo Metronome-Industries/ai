@@ -66,7 +66,7 @@ This divides the raw event quantity (e.g., 50,000 tokens → 50 units) before ap
 
 ```http
 POST /v1/contract-pricing/products/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {
