@@ -3,7 +3,7 @@ name: metronome-group-keys
 description: >-
   Designs group_keys for a billable metric across pricing, invoice presentation,
   spend breakdowns, seat-based credits, and usage alerts — and flags cardinality risk
-  (a combined key's cost is the product of every dimension's cardinality, not the sum)
+  (a combined key's worst case is the product of every dimension's cardinality, not the sum)
   before it gets baked into an immutable metric. Use when a billable metric needs more
   than one flat pricing dimension, when deciding pricing_group_key vs.
   presentation_group_key, or when an existing setup has slow invoices or unexpectedly
@@ -26,17 +26,29 @@ not match one of the property filter names."` for a `group_keys` mismatch,
 `"The specified aggregation key must be one of the property filter names."` for the
 `aggregation_key`), and you can get several of these back together in one response.
 `property_filters` is optional on the API, but in practice you'll always need one
-entry per dimension you group by — this is the single most common mistake when adding
-group keys to an existing metric.
+entry per dimension you group by — this is the single most common mistake when defining
+group keys on a new metric.
+
+`group_keys` can't be edited through the API once a metric exists. Changing them means
+creating a new metric or having Metronome support make the change, and neither regroups
+usage that was already ingested: that takes a reflow, and contracts backdated before the
+change don't benefit. Contact Metronome support before changing a metric that is already
+billing.
 
 ---
 
 ## Cardinality risk, up front
 
-A group key's scan cost is the **product** of every dimension's cardinality inside
-it, not the sum. Four dimensions with 5,000 / 8 / 100,000 / 5 possible values combined
-on one key is 5,000 × 8 × 100,000 × 5 = 20,000,000,000 combinations — even if pricing
-only needs two of them. This is the single most common way a Metronome setup goes
+A group key's worst-case number of distinct combinations is the **product** of every
+dimension's cardinality inside it, not the sum. Four dimensions with 5,000 / 8 / 100,000
+/ 5 possible values combined on one key can produce up to 5,000 × 8 × 100,000 × 5 =
+20,000,000,000 combinations — even if pricing only needs two of them. That product is
+an upper bound, not a measurement: the combinations that actually occur per customer are
+often far fewer (for example when each ID belongs to a single parent), and those, along
+with event volume, set what a query costs. Size a key on the combinations you expect per
+customer, and fall back to the product only when you can't estimate that. A query
+against a compound key reads every dimension in it, so a dimension nothing needs adds
+avoidable work. This is the single most common way a Metronome setup goes
 wrong, and `group_keys` is immutable after the metric is created, so it has to be
 gotten right before the first API call, not fixed afterward.
 
@@ -45,15 +57,15 @@ in the same request — for pricing, invoice presentation, or a spend or usage q
 must be members of one combined `group_keys` entry, declared now.** There is no way
 to combine two separately-declared keys later, and there is no exception based on
 whether the request computes a dollar figure or just a count — combination is about
-which dimensions co-occur in one request, not about what the request is for. (Usage
-alerts are the one exception to "co-occurrence forces combination": alert evaluation
-always queries a single dimension alone, so an alert dimension should stay standalone
-— see Step 3.)
+which dimensions co-occur in one request, not about what the request is for. (Spend
+alerts scoped to a group key are evaluated the same way spend breakdowns are, so they
+follow the same rule — see Step 3.)
 
 **Ideal default: keep the pricing key to only the dimensions that actually set the
 price, and give every other dimension its own standalone key** — unless that
-dimension will always be queried together with pricing (invoice presentation always
-is; a spend or usage query only is if you'll ask for both together in the same call).
+dimension will always be queried together with pricing (invoice presentation, spend
+breakdowns and spend alerts scoped to a dimension always are; a plain usage query only
+is if you'll ask for both together in the same call).
 Standalone keys are the cheap, safe default; only combine when co-occurrence actually
 forces it.
 
@@ -79,6 +91,17 @@ These become `pricing_group_key` on the product. One pricing dimension is a
 standalone key; multiple pricing dimensions form a compound key, one combination per
 unique value pair.
 
+**Invoice compute uses the smallest key that contains the dims it looks up.** It looks
+up the pricing dims plus the presentation dims, if a presentation key is set. If the
+only matching entry is a larger one (pricing `[model]`, no presentation key, only
+`[model, token_type]` declared), every invoice computation reads every dimension of
+the larger key to produce a result that needs only `[model]`. So with no presentation
+key, declare the pricing key by itself alongside any larger key. With a presentation
+key, the entry that must exist is pricing plus presentation (see "Choosing the
+presentation key"), and a separate pricing-only key isn't needed for invoice compute.
+The cost of that extra read grows with how many combinations the larger key actually
+holds, so it matters most when that key is large.
+
 ---
 
 ## Step 3 — Identify what else each dimension is used for, and whether it co-occurs with pricing
@@ -89,14 +112,37 @@ used for, and does that use ever need pricing dimensions in the same request?**
 | Feature | Question to ask | Co-occurs with pricing dims? | Key needed |
 |---|---|---|---|
 | Invoice line item breakdown | Separate line items per dimension on the invoice? | Always — invoice generation rates the pricing dims and presents by this dim in the same computation | `presentation_group_key`: pricing dims + the extra dim, combined |
-| Spend or usage breakdown by this dim | Need a dollar or quantity breakdown by this dim, on demand? | Only if you'll query it together with a pricing dim in the same call | Combined key if yes; a standalone key on the dim alone is fine and cheaper if it's ever queried by itself |
-| Seat-based credits | Do seats draw from their own credit balance? | Usually queried alone via API/dashboard; combined only if you want per-seat invoice line items rolled up together | Standalone seat key by default; combine with pricing dims and set `presentation_group_key` to include the seat dim to get that invoice rollup |
-| Usage alerts | Alerts scoped to a specific dimension? | No — alert evaluation queries one dimension in isolation | Standalone key on that dimension — **only on a fixed, known set of values**, never a dimension that grows with usage |
+| Spend breakdowns (`POST /v1/customers/{id}/invoices/spend-breakdowns`) | Need spend broken down by this dim, on demand? | Always — the endpoint recomputes the invoice with this dim as the presentation key, so the lookup needs the pricing dims, any dim the request filters on, and this dim together in one key | One key: pricing dims + filter dims + this dim. Only a metric with no pricing dims, queried by this dim alone, can use a standalone key |
+| Plain usage query by this dim | Need a raw quantity breakdown by this dim, on demand? | Only if you'll query it together with a pricing dim in the same call | Combined key if yes; a standalone key on the dim alone is fine and cheaper if it's only ever queried by itself |
+| Seat-based credits | Do seats draw from their own credit balance? | Always — seat-scoped balances filter usage by the seat dim, and that filter is applied only to line items whose own pricing or presentation key contains the seat dim | The seat dim must be in the product's `pricing_group_key` or `presentation_group_key`, so one key: pricing dims + seat dim (set `presentation_group_key` to include the seat dim). A standalone seat key works only on a metric with no pricing dims. Size the combined key (Step 4): pricing combinations × seats |
+| Spend alerts scoped to a dimension | Alerts on spend for one dimension (any value, or one specific value)? | Always — these alerts are evaluated by computing the invoice with this dim as the presentation key, the same way spend breakdowns are | One key: pricing dims + this dim. Only a metric with no pricing dims can use a standalone key. **Only on a fixed, known set of values**, never a dimension that grows with usage |
 
-**There's no dollar-vs-quantity distinction here.** A priced spend breakdown and a raw
-usage-quantity breakdown follow the identical rule — what matters is whether that
-specific query ever needs pricing dimensions alongside the breakdown dimension in the
-same request, not whether the result is denominated in dollars.
+**The distinction that matters is which endpoint, not dollars versus quantity.** Spend
+breakdowns, and spend alerts scoped to a dimension, recompute the invoice with the
+requested dim swapped in as the presentation key, so the key lookup always includes the
+product's pricing dims (and any dim the request filters on). If no single `group_keys`
+entry contains all of them, the request still succeeds, but the breakdown isn't applied:
+the response falls back to the invoice's configured grouping and no error is returned. A
+plain usage query only needs the dims it actually names.
+
+**A breakdown can also be skipped for reasons that have nothing to do with group
+keys.** A spend breakdown also isn't applied, with the same fallback and no error, when
+the metric uses MAX aggregation or quantity rounding, when the product's rate is tiered,
+or when the contract has commit-specific overrides or rate overrides scoped to
+presentation group values. If your metric or contract uses any of these, the breakdown
+won't split out; contact Metronome about your setup before you build on it.
+
+**Spend breakdowns are in private preview.** Metronome enables the endpoint per account,
+and it returns a 403 until it is. Contact Metronome to get access before you build on it.
+
+**Spend-breakdown requests have their own limits.** Every group key in a request needs
+filter values (a request for all values is rejected unless Metronome has enabled it for
+your account); only `day` and `none` windows are accepted; the number of `group_keys` per
+request defaults to 2 and is set per account; and the total number of filter
+values across all keys has a configured cap. These are enforced by the API, so they
+return an error instead of falling back. Plan to group by one key per request and filter
+by the others; each breakdown dimension then needs its own key containing the pricing
+dims.
 
 **Each dimension gets its own group key; if two features need the same dimension and
 always co-occur with the same other dimensions, one key covers both** — don't build a
@@ -117,8 +163,9 @@ that's settled:
   the co-occurring dim, multiplied together, in the low hundreds or less:
   `group_keys: [[...pricing_dims, feature_dim]]`.
 - **Combining gets expensive fast as combined cardinality grows** — every dimension in
-  one key multiplies the scan cost of every query against it (see "Cardinality risk,
-  up front"). Treat anything above roughly 1,000 combined distinct values as worth a
+  one key can multiply the combinations each query against it reads (see "Cardinality
+  risk, up front"). Treat anything above roughly 1,000 combined distinct values per
+  customer as worth a
   second look — but this is a check that Step 3's co-occurrence answer was actually
   correct, not a cost-based excuse to override it: if the co-occurrence is real, the
   cost is required and this cannot be undone later. Only go back to Step 3 if, on
@@ -141,15 +188,16 @@ that's settled:
 `group_keys` is immutable after the metric is created. Present this table and get
 explicit confirmation before calling the API:
 
-| Dimension | In `group_keys`? | Role: pricing / invoice breakdown / spend or usage query / seat credits / alerts / none | Estimated cardinality |
-|---|---|---|---|
-| (fill in per dimension) | yes / no | | fixed count, or "grows with usage" |
+| `group_keys` entry | Serves: pricing / invoice breakdown / spend breakdown / usage query / seat credits / alerts | Worst-case combinations (product of its dims; "grows with usage" if any dim does) |
+|---|---|---|
+| (one row per key you plan to create, e.g. `[model, token_type, user_id]`) | | |
+
+Then list any dimension you are deliberately leaving out of every key, with the reason.
 
 Include every dimension that might ever be needed. Declaring a group key costs
-nothing upfront, but that's not the same as it being free to run: once events carry
-that dimension, a compound key scans its full cross-product whether or not anything
-ever queries it — estimate the combined cardinality for every proposed compound key
-before confirming, not just its role. What you can't fix later is a *missing*
+nothing upfront, but that's not the same as it being free to run: every query that
+resolves to a compound key reads all of its dimensions — estimate the combined
+cardinality for every proposed compound key before confirming, not just what it serves. What you can't fix later is a *missing*
 dimension — `group_keys` is immutable, so leave out a dimension now and there's no
 adding it after the fact.
 
@@ -242,17 +290,19 @@ dimension involved, is a display question, not a group-key change.
 - Do not assume `group_values` filtering on a compound key is cheap. Compound key
   values are stored together — filtering to one inner value still requires reading
   every value of every other dimension in that key. Give the filtered dimension its
-  own standalone key instead.
-- Do not scope a usage alert to a dimension that grows with usage (a user ID, a
+  own standalone key instead — except for spend breakdowns on a metric with pricing
+  dims, which need those dims in the same key; there, keep the combined key and treat
+  its cardinality as the cost.
+- Do not scope a spend alert to a dimension that grows with usage (a user ID, a
   session ID, any accumulating entity ID) — bounded enums only (model, tier, region).
-  If an alert dimension ends up nested inside a large compound pricing key for some
-  other reason, it inherits that key's full cardinality cost — flag it to Metronome
-  support before launch.
+  The alert dimension needs a key that also contains the pricing dims (see Step 3), so
+  it carries that key's full cardinality cost: size the key (Step 4) and flag it to
+  Metronome support before launch if the dimension could be large.
 - Do not combine two unrelated feature dimensions onto one key to save a key slot —
   they'll interfere with each other's lookups.
 - Do not treat a compound key's cardinality math the same as a standalone key's. A
   standalone key never has the cross-product cost a compound key does. That's a
-  scan-cost distinction, not a blanket exemption: contact Metronome support if *any*
+  combination-count distinction, not a blanket exemption: contact Metronome support if *any*
   group key's per-customer cardinality — standalone or compound — may reach ~1,000
   unique values, since other behavior (API latency on usage/spend-breakdown queries)
   scales with cardinality either way.
