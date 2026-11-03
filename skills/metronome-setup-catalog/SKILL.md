@@ -5,7 +5,9 @@ description: >-
   billable metrics, products, rate card, customer, and contract in order.
   Use when asked to set up Metronome from scratch, bill a first customer, build
   a pricing model, create a billable metric or product, configure a rate card,
-  or complete any compound billing setup task end-to-end.
+  or complete any compound billing setup task end-to-end. Also use when a user
+  is onboarding to Metronome for the first time or getting started, including
+  from the Metronome onboarding wizard.
 argument-hint: <pricing_description>
 public: true
 ---
@@ -18,6 +20,7 @@ End-to-end setup from pricing intent to a verified live contract. The catalog (S
 
 | Task                                            | Reference / step                              |
 | ----------------------------------------------- | --------------------------------------------- |
+| First-time setup, or onboarding from the Metronome onboarding wizard | [references/first-time-setup.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/first-time-setup.md) — read before Step 1 |
 | Define what to measure                          | [references/billable-metrics.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/billable-metrics.md) — then Step 1 |
 | Define invoice line items                       | [references/products.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/products.md) — then Step 2        |
 | Set default pricing                             | [references/rate-cards.md](https://docs.metronome.com/skills/metronome-setup-catalog/references/rate-cards.md) — then Steps 3–4   |
@@ -232,7 +235,7 @@ A line item with your product name and a non-zero quantity confirms the full cha
 - *All monetary amounts are in cents.* $1 → `100`, $0.01 → `1`.
 - *`entitled: true` is required on each rate.* Omitting it silently disables the product.
 - *Ingest body must be a bare JSON array.* `[{...}]` not `{"usage": [...]}`.
-- *Confirm the environment before any write.* Ask the user whether to write to sandbox or production — do not silently switch to production.
+- *Confirm the environment before any write.* Ask the user whether to write to sandbox or production — do not silently switch to production. If the user says they are onboarding in their sandbox, treat that as confirmation.
 
 ## Key documentation
 
