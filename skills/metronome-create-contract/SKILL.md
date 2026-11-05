@@ -1,6 +1,6 @@
 ---
 name: metronome-create-contract
-description: Creates a Metronome contract for an existing customer from signed order form terms — commits, credits, and rate overrides. Use when asked to create a contract, set up a contract, add a commit or credit, configure pricing, or start a new contract.
+description: Creates a Metronome contract for an existing customer from signed order form terms — commits, credits, rate overrides, platform-fee subscriptions and tiered rates — one form at a time, stopping to ask the user wherever the form is unclear. Use when asked to create a contract, set up a contract, add a commit or credit, configure pricing, or start a new contract.
 argument-hint: <customer_id_or_name>
 public: true
 ---
@@ -27,8 +27,8 @@ Confirm the environment with the user before any write. If it is unclear, ask. N
 Ask these four things once. Do not ask them again on each form.
 
 1. Environment: which account and base URL to write to. Never assume.
-2. IDs: the rate card, and the product IDs the form needs (FIXED for commits and credits, SUBSCRIPTION for a platform, access or support fee, one product for each usage rate the form sets).
-3. Customer: the customer ID, or the exact name to look up. If you look it up, show every candidate and let the user pick.
+2. IDs: the rate card, and the product IDs the form needs (FIXED for commits and credits, SUBSCRIPTION for a platform, access or support fee, one product for each usage rate the form sets that this skill will create; rates that go under NOT CREATED need no product). This skill does not create usage products: they need a billable metric, so the user supplies the IDs or runs `metronome-setup-catalog` first.
+3. Customer: the customer ID, or the exact name to look up. If you look it up, show every candidate and let the user pick. Also ask whether this customer has a billing provider configured; this skill cannot read it.
 4. Is the file the signed copy? Take the user's answer. A text export of a PDF does not show signature images, so blank signature fields in the export are not proof the form is unsigned.
 
 ---
@@ -43,13 +43,15 @@ Read the whole form first. Then tell the user what you found and ask before goin
 | Is it signed? | The user did not confirm a signed copy in run setup, and the signature fields are blank or there is no completion record |
 | Who is the customer? | The name is a placeholder, differs between pages, or has more than one candidate in `GET /v1/customers` |
 | Is the term current? | The term has ended, has not started, or auto-renews and you cannot tell whether it renewed (a term that ends today is handled below) |
-| Currency | It is not USD, or the form shows "$" and nothing in an amount, the pricing section or the payment clause names the currency (ask; do not assume USD; a stray "USD" in an unrelated clause does not settle it). This skill has no currency field |
+| Currency | It is not USD, or no sentence says the fees or prices are in USD (for example "all amounts are payable in U.S. Dollars", or "USD" in the price column). A "$" sign alone does not settle it, and neither does "USD" inside an exchange-rate or conversion sentence or an unrelated clause: ask; do not assume USD. This skill has no currency field |
 
 Do not continue past a "yes" until the user answers. Add the questions from Step 1 to the same list and ask the whole list together, once, instead of one at a time. Split the list in two: DECISIONS (a real ambiguity, an unseen document, a conflict between two readings: the user must choose) and CONFIRM THESE DERIVED VALUES (end dates, instalment dates, converted units: the user can accept all of them with one yes or correct any). Nothing is assumed in either part. Show the preview after the user has answered; its NEEDS YOUR CONFIRMATION section then holds only what is still open (for example the past dates warning).
 
 **Term status.** The last day of a term is `ending_before` minus one day. A term "ends today" when that last day is today's date: treat it as current, and put it in NEEDS YOUR CONFIRMATION together with any auto-renewal clause.
 
-**If the term has ended, ask whether to back-fill it or skip it.** Do not assume either way. If the user chooses back-fill, show how many invoices would finalize and the dollar total (see "Past dates warning" in Step 3). A form that auto-renews may have renewed: ask, and do not guess.
+**If the term has ended, do not create anything, and do not offer to back-fill it or to move it to start today.** Creating a contract with past dates finalizes every past invoice at once. Ask whether this order form is still valid, for example renewed or extended. If it is not, stop. If it is, ask for the dates now in force; do not use the ended dates. A form that auto-renews may have renewed: ask, and do not guess.
+
+**If the term has started and has not ended, say what will happen first.** Do not give these figures for an ended term: it stops at the check above, and the figures apply only if the user then gives dates that start in the past. In the same first message as the checks above, before any other question, tell the user that creating a contract with a start date in the past finalizes every past invoice at once: each past commit invoice, each past subscription invoice, and one usage invoice for each past calendar month. Give the count and dollar total as best you can from the form, mark dates you derived, and say the preview will repeat the figures once their answers settle the dates. Do not leave this for the preview.
 
 ---
 
@@ -67,7 +69,7 @@ Extract or ask for:
 | Prepaid commit amount(s) | In dollars per year — note if different per year. When the amount differs by year, create one commit per contract year. If the form prices several product lines separately inside one period, ask; do not decide |
 | Invoice date(s) for each commit | A timestamp for every invoice. A date is stated when the form gives it, or gives it by reference to a date the form states ("on the Effective Date" when the Effective Date is written). It is derived when you calculate or infer it (six months after, the first of each month, "annual upfront" with no date); mark derived dates. If the form gives no way to work it out, ask |
 | Included allotments | e.g. "2B events/year" — must be converted to dollars: `count × rate/1K` |
-| Platform, access, support or flat fee | May be $0. If non-zero, create it as a subscription (see "Platform fee as a subscription" under Step 4). Collect the fee per year, how often it is billed (annual, quarterly, monthly), in advance or in arrears, and the start date. If the form gives no billing frequency or date, ask; never guess a frequency. If one instalment bundles several fixed lines and a discount (a package, support, a discount, a payment fee), create one subscription at the instalment total, list each line under NOT CREATED as "included in the subscription price", and put the choice under NEEDS YOUR CONFIRMATION. Never put one customer's fee on the shared rate card |
+| Platform, access, support or flat fee | May be $0. If non-zero, create it as a subscription (see "Platform fee as a subscription" under Step 4). Collect the fee per year, how often it is billed (annual, semi-annual, quarterly, monthly), in advance or in arrears, and the start date. If the form gives no billing frequency or date, ask; never guess a frequency. If one instalment bundles several fixed lines and a discount (a package, support, a discount, a payment fee), create one subscription at the instalment total, list each line under NOT CREATED as "included in the subscription price", and put the choice under NEEDS YOUR CONFIRMATION. Never put one customer's fee on the shared rate card |
 | Per-unit rate overrides | Note if variable year-over-year |
 | Product IDs | Must be **FIXED-type products** for commits and credits. Use existing ones, create one as a setup write the user approves (`POST /v1/contract-pricing/products/create` with `{ "name": "...", "type": "FIXED" }`), or run `metronome-setup-catalog` Step 2 first. |
 
@@ -77,11 +79,11 @@ Extract or ask for:
 
 - Allotments with no dollar rate (for example "1,000,000 MAUs", "50 connections", "up to 100 vehicles"). They cannot be converted to dollars.
 - Stubs (a part-period amount before the first full period), negative amounts, and one-time discounts or credits against a fee. If a bundled instalment total already nets a discount, list the discount as "included in the subscription price" instead.
-- Percentage-of-Billings fees, tiered or threshold rates (a rate that applies only above a quantity), minimum-spend commitments, commitments counted in units rather than dollars, invoices triggered by consumption, and amendments to other order forms. This skill does not create them.
+- Percentage-of-Billings fees, tiers counted over a whole term or year rather than each billing period, tiers priced on the whole volume, minimum-spend commitments, commitments counted in units rather than dollars, invoices triggered by consumption, and amendments to other order forms. This skill does not create them.
 - Auto-renewal clauses and renewal pricing. This skill creates the initial term only.
 - Waived or $0 fees, late fees, tax and governing-law clauses, and non-monetary terms (marketing commitments, logo rights). Net payment terms are not in this list: create them with `net_payment_terms_days`.
 
-**Every assumption is a question.** If you are about to rely on something the form does not say, or on something you worked out instead of read, ask the user. Do not carry on with a default. You may do these without asking: convert units (dollars to cents, a rate per 1,000 to a rate per unit), write `ending_before` as the last day plus one, and use a date the form states directly or by reference to a date it states. Everything else is a question, including a date you derive (six months after, the first of each month), which customer record matches, which product a credit or override applies to, a commit's or credit's access window when the form gives none, whether the customer has a billing provider (this skill does not read it, so ask), and which of two readings is right. Each question gives the options, the form's own words, and your suggested answer. The preview is not final until the user has answered every question.
+**Every assumption is a question.** If you are about to rely on something the form does not say, or on something you worked out instead of read, ask the user. Do not carry on with a default. You may do these without asking: convert units (dollars to cents, a rate per 1,000 to a rate per unit), write `ending_before` as the last day plus one, and use a date the form states directly or by reference to a date it states. Everything else is a question, including a date you derive (six months after, the first of each month), which customer record matches, which product a credit or override applies to, a commit's or credit's access window when the form gives none, whether the customer has a billing provider (this skill does not read it, so ask), and which of two readings is right. Each question gives the options, the form's own words, and your suggested answer, except where a rule above says to give none. The preview is not final until the user has answered every question.
 
 **Fixed defaults, always shown in the preview.** Times are 00:00:00 UTC. A subscription has quantity 1 and no proration. Names come from the form's own wording (for example "Pre-paid Credit Year 1", "Base SaaS Fees"). Change a default only when the form says otherwise.
 
@@ -89,19 +91,22 @@ Extract or ask for:
 
 - two totals or two amounts are possible (for example a stated total that does not equal the sum of its lines)
 - a rate, amount or fee shows two or more values with no label (a redline, or a cell such as "$30,000 $25,000 $30,000 $25,000"). A text export may keep bold markers (**value**) but lose strikethroughs, so you cannot be sure which value is current. A bold value beside a plain one is often the replacement; still ask
-- a fee has no billing frequency or no billing date. If the form states two or more billing dates a year, a quarter or a month apart, the frequency they imply counts as derived: put it in CONFIRM THESE DERIVED VALUES instead of asking it as a decision
+- a fee has no billing frequency, or no billing date that you can work out from the form. A stated frequency with no date (for example "annual upfront") makes the first billing date a derived value: put your proposed date in CONFIRM THESE DERIVED VALUES instead of asking it as a decision. If the form states two or more billing dates a year, a quarter or a month apart, the frequency they imply counts as derived: put it in CONFIRM THESE DERIVED VALUES instead of asking it as a decision
 - a commit's or credit's access window is not stated
 - the customer name differs from the form, or more than one customer could match
-- it is unclear which product a credit or override applies to (for example standard or premium exports, events or rows exported)
+- it is unclear which products a commit, credit or override applies to (for example standard or premium exports, events or rows exported, or a prepaid amount the form ties to named products)
 - the form incorporates another document you cannot see (an MSA, terms of service, an earlier order form) and its terms could change the contract (renewal, payment, credits): ask the user to supply it or to confirm it can be ignored
 - the form contradicts itself on dates, for example an offer that "expires on" a date earlier than the signatures, or a date format that could be read two ways (8/6/2025)
 - the form says "upon execution", shows more than one signature date, and that date feeds an invoice date or a term date: ask which date is the execution date. If no date in the payload depends on it, do not ask
-- a fee's billing frequency is not annual, quarterly or monthly (for example semi-annual)
+- a fee's billing frequency is not annual, semi-annual, quarterly or monthly (for example every two months)
 - the form gives a time of day or a time zone for a term start or end, an invoice date or a billing date (ignore support hours, audit-trail timestamps and similar)
 - the fee's billing anchor is later than the start of its first period, which creates a part-period: ask how it should bill
 - a date, amount or product is missing
 - one invoice covers more than one commit, or a commit plus a fixed fee, and the form does not give the split
 - the form calls a billed amount a "credit" (this skill treats a paid amount as a commit and an included amount as a credit; confirm with the user)
+- the form prices several product lines separately inside one prepaid period (for example four SKU lines that add up to one payment): ask whether to create one commit per line or one commit for the total
+- the form says usage is netted against, included in or credited toward a fee (for example "consumption is first netted against the Platform Fee"): ask whether the fee should be a subscription (the fee is billed on its own and usage bills at its own rates) or a commit (the amount is prepaid and usage draws it down). This depends on the customer's deal: give the options with no suggested answer
+- a rate has a free band from zero followed by one paid rate (for example "0 - 275,000,000 $0.00, then $0.03"): this fits both an included allotment and a tiered rate. Ask whether to create the free band as a tiered rate (see "Tiered rates"; only when the form counts it in each billing period), as a credit (the quantity times the paid rate, scoped to the product), or to list it under NOT CREATED
 
 ---
 
@@ -147,7 +152,7 @@ CONTRACT PREVIEW  —  <customer name>   (environment: <base URL>)
     <product>  <rate>  <start>→<end>
 
   Subscriptions (platform / access / support fees):
-    <name>    billed <annual|quarterly|monthly> in <advance|arrears>    <start>→<end>    product: <subscription_product_id>
+    <name>    billed <annual|semi-annual|quarterly|monthly> in <advance|arrears>    <start>→<end>    product: <subscription_product_id>
       price by year: <year 1> $<x>, <year 2> $<y>   [one override per year]
       billing cycle: anchor <date>, <ON_SCHEDULED_INVOICE | ON_USAGE_INVOICE>
       invoices: <date> $<amount>, ...   [derived | stated in form]
@@ -157,7 +162,7 @@ CONTRACT PREVIEW  —  <customer name>   (environment: <base URL>)
     Credit, subscription and override amounts the same way (a rate per unit is shown per unit)
 
 SETUP WRITES (done before the contract is created)
-  - create product "<name>" (<FIXED | SUBSCRIPTION | USAGE>)
+  - create product "<name>" (<FIXED | SUBSCRIPTION>)
   - add a base rate on rate card "<name>": <product>, <frequency>, <price>, starting_at <1 January of the year before the earliest contract start, proposed; the user confirms>
     (the rate card is shared: say so, and say what already sits on it for this product)
 
@@ -233,6 +238,8 @@ Content-Type: application/json
 }
 ```
 
+**Limiting a commit to products.** Add `"applicable_product_ids": ["<product_uuid>"]` to a commit only when the user has said to limit it. Without it a commit pays for all usage. A $10 commit limited to product A absorbed A's usage (500 cents) and left B's 500 cents to bill; the same commit with no list absorbed both.
+
 ### Platform fee as a subscription
 
 Use this when the form has a non-zero platform, access, support or flat fee. Example: a fee of $150,000 in year 1 and $450,000 in year 2, billed annually in advance.
@@ -273,17 +280,51 @@ Billing periods and timing:
 - Set `billing_cycle_config.anchor_date` to the date the form bills from (usually the Effective Date), and `invoice_placement: "ON_SCHEDULED_INVOICE"`, so the fee gets its own invoice on each anniversary. With `ON_SCHEDULED_INVOICE` the proration `invoice_behavior` must be `BILL_IMMEDIATELY`.
 - Without `billing_cycle_config`, fee periods follow the 1st of the month and the fee rides the monthly usage invoice (`ON_USAGE_INVOICE`, the default, with `invoice_behavior: "BILL_ON_NEXT_COLLECTION_DATE"`). For a contract starting on a date other than the 1st, an annual fee then renews on the next 1st, not on the anniversary, and a per-year price override that changes on the anniversary can miss: a contract starting 2025-11-15 billed its second period (2026-11-01 to 2027-11-01) at the year-1 price of $150,000 instead of $450,000.
 - With the anchor set to the start date, the same contract produced $150,000 for 2025-11-15 to 2026-11-15 and $450,000 for 2026-11-15 to 2027-11-15.
+- Semi-annual in advance, anchored to a start of 2026-05-03, at $12,500 then $25,000: an invoice of $12,500 for 2026-05-03 to 2026-11-03 and one of $25,000 for 2026-11-03 to 2027-05-03.
 - A subscription override `price` is per billing period: 1,000,000 cents billed monthly is 1,000,000 a month, and billed quarterly is 1,000,000 a quarter. Do not convert an annual fee to a per-period price on your own; if the form's fee is annual and you bill quarterly, that is a question.
 - `initial_quantity` multiplies the price: quantity 3 at 1,000,000 cents billed 3,000,000 a period.
-- ANNUAL, QUARTERLY and MONTHLY billing, and `ADVANCE` and `ARREARS` collection, are accepted. In arrears the charge for a month appears on that month's usage invoice.
+- ANNUAL, SEMI_ANNUAL, QUARTERLY and MONTHLY billing, and `ADVANCE` and `ARREARS` collection, are accepted. In arrears the charge for a period appears on the usage invoice after the period, and the fee follows the contract's usage invoice cycle, so it cannot be anchored to the start date. A semi-annual fee in arrears from 2026-05-03 billed its first half-year as 2026-05-03 to 2026-11-01, on the October usage invoice. If that does not match the form's dates, ask.
 - Always read the invoices back and check each fee line's own period (`starting_at`, `ending_before`) against the form.
 
 Rules the API enforces:
 - `collection_schedule: "ADVANCE"` needs `proration.invoice_behavior`, or the API returns 400 "Subscription collection schedule ADVANCE must have a proration invoice behavior set".
 - `invoice_placement: "ON_SCHEDULED_INVOICE"` with `BILL_ON_NEXT_COLLECTION_DATE` returns 400 "cannot use BILL_ON_NEXT_COLLECTION_DATE as invoice behavior"; use `BILL_IMMEDIATELY`.
+- `collection_schedule: "ARREARS"` with `BILL_IMMEDIATELY` returns 400 "Subscription collection schedule ARREARS cannot have proration invoice behavior BILL_IMMEDIATELY".
+- `invoice_placement: "ON_USAGE_INVOICE"` with an `anchor_date` that differs from the contract's usage invoice cycle returns 400 "Subscription billing cycle anchor date must match contract usage invoice billing cycle anchor date when invoice placement is ON_USAGE_INVOICE".
 - An override on a subscription product must carry the billing frequency inside `override_specifiers`. A plain `product_id` override returns 400 "Subscription product types must use a flat rate with billing frequency".
 - The subscription's product and billing frequency must match a rate on the rate card.
 - Without `starting_at`, the subscription starts with the contract and, without `ending_before`, ends with it.
+
+### Tiered rates
+
+Use this when the form prices usage in bands, for example "first 200 units at $49, the next 100 at $40, then $30". Bands are graduated: each band is billed at its own price, and the invoice shows one line per band. This skill creates graduated tiers only, and the behavior is verified within a single monthly billing period.
+
+Put the tiers on a contract-level override. The product must already have a rate on the rate card (the override replaces it for this contract). If it has none, add a base FLAT rate first as a setup write (`price` in cents per unit, `entitled: true`).
+
+```json
+"overrides": [
+  {
+    "starting_at": "<ISO8601>", "ending_before": "<ISO8601>", "type": "OVERWRITE",
+    "product_id": "<usage_product_uuid>",
+    "overwrite_rate": {
+      "rate_type": "TIERED",
+      "tiers": [
+        { "size": 200, "price": 4900 },
+        { "size": 100, "price": 4000 },
+        { "price": 3000 }
+      ]
+    }
+  }
+]
+```
+
+- `size` is the width of the band in units of the product's billable metric (events, connections, vehicles), not a running threshold: "201 to 300" is a band of 100. The last tier has no `size`; it covers everything above. Leave the field out: `"size": null` on the last tier is rejected with a 400 on the rate card (it was not tried on an override).
+- `price` is cents per unit in that band. Fractional prices are accepted. A rate quoted per 1,000 is divided by 1,000 first.
+- "First N at X, then Y" is two tiers: `[{ "size": N, "price": X }, { "price": Y }]`. A free first band is `"price": 0`: with 100 free and the rest at 100 cents, 250 units billed 100 at 0 and 150 at 100, 15,000 cents in total.
+- Show the arithmetic in the preview. For bands of 100 units at 300 cents, 100 at 200 and the rest at 100, 250 units bill 100 × 300 + 100 × 200 + 50 × 100 = 55,000 cents.
+- If the tiers change by year, use one override per year, as with flat rates.
+- A tiered rate on the rate card takes the same `rate_type` and `tiers` in `addRates`. Do not put one customer's tiers there.
+- Ask when the form counts the bands over a year, the whole term or cumulative volume, does not say whether tiers are graduated or priced on the whole volume, or puts price bands next to an up-front commit (is overage drawn from the commit or billed on top?). Whole-volume pricing and term-long thresholds are not created: list them under NOT CREATED.
 
 Return the contract `id` on success. If the API rejects the payload, show the user the exact error and stop. Do not retry with a changed payload without asking. Only give a commit a `temporary_id` if an override in the same request needs to reference it (see below) — otherwise omit the field. Omit `net_payment_terms_days` when the form has no payment terms.
 
