@@ -27,7 +27,7 @@ One rate card → many customers. When you change a rate on the rate card, that 
 
 ```http
 POST /v1/contract-pricing/rate-cards/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 { "name": "<rate card name>" }
@@ -41,7 +41,7 @@ Use the batch endpoint (preferred over `addRate`):
 
 ```http
 POST /v1/contract-pricing/rate-cards/addRates
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {
@@ -118,14 +118,14 @@ For volume-based pricing (e.g., first 10K calls at $0.01, then $0.005):
   "rate_type": "TIERED",
   "tiers": [
     { "size": 10000, "price": 1 },
-    { "size": null, "price": 0 }
+    { "price": 0.5 }
   ],
   "starting_at": "<ISO8601>",
   "entitled": true
 }
 ```
 
-`size: null` on the last tier means "all remaining units." `price` is in cents per unit.
+`size` is the width of a band in units. The last tier has no `size` and covers all remaining units; `"size": null` is rejected with a 400. `price` is in cents per unit, and tiers are graduated (each band is billed at its own price).
 
 ## Monthly recurring credits (recurring_credits)
 
@@ -154,7 +154,7 @@ After setup, configure spend and balance alerts:
 
 ```http
 POST /v1/alerts/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {

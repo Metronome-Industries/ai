@@ -68,7 +68,7 @@ Group keys are immutable after creation. Before calling the API, present this ta
 
 ```http
 POST /v1/billable-metrics/create
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {

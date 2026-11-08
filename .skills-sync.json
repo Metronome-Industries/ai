@@ -3,7 +3,7 @@
   "source": {
     "repo": "Metronome-Industries/api",
     "path": "docs/skills",
-    "sha": "3701ad5aa87d52b840881cb89e5f7c88c229e373"
+    "sha": "b3518ba073f68e6a24294a72d2989cf15d6c984d"
   },
   "skills": [
     {
@@ -61,6 +61,7 @@
         "SKILL.md",
         "references/billable-metrics.md",
         "references/custom-pricing-units.md",
+        "references/first-time-setup.md",
         "references/pricing-patterns.md",
         "references/products.md",
         "references/rate-cards.md"

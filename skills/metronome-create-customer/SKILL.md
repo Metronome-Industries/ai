@@ -31,7 +31,7 @@ Ask the user for anything not already provided:
 
 ```http
 GET /v1/customers
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 ```
 Returns all customers — match by `name` field from the response. (List-endpoint verbs aren't uniform across the Metronome API — this one is `GET`, while e.g. `POST /v2/contracts/list` is `POST`. Confirm the verb from the specific endpoint's reference rather than assuming by analogy.)
 
@@ -61,7 +61,7 @@ Do not call the API until the user confirms.
 
 ```http
 POST /v1/customers
-Authorization: Bearer $METRONOME_API_TOKEN
+Authorization: Bearer $METRONOME_BEARER_TOKEN
 Content-Type: application/json
 
 {

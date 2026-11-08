@@ -12,7 +12,7 @@ argument-hint: <customer_name_or_list>
 public: true
 ---
 
-All API calls are read-only. Use `$METRONOME_API_TOKEN` for auth. Base URL: `https://api.metronome.com/v1`.
+All API calls are read-only. Use `$METRONOME_BEARER_TOKEN` for auth. Base URL: `https://api.metronome.com/v1`.
 
 ## Routing
 
