@@ -1,0 +1,9 @@
+name: Validate agent instructions
+description: Require shared instructions and sibling Claude symlinks at every instruction scope.
+inputs:
+  token:
+    description: Token with read access to the target repository.
+    required: true
+runs:
+  using: node24
+  main: index.cjs

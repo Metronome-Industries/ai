@@ -1,0 +1,19 @@
+name: Agent instructions
+
+on:
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate instruction scopes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: Metronome-Industries/ai/.github/actions/agent-instructions@93d8ae84028c11bcd4399712f78b44bf111be31b
+        with:
+          token: ${{ github.token }}
