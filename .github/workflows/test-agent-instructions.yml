@@ -1,0 +1,21 @@
+name: Test agent instruction policy
+
+on:
+  pull_request:
+    paths:
+      - .github/actions/agent-instructions/**
+      - .github/workflows/agent-instructions.yml
+      - .github/workflows/test-agent-instructions.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - run: node --test .github/actions/agent-instructions/index.test.cjs
